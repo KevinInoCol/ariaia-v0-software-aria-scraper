@@ -629,6 +629,19 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                 >
                   {isLoading ? "Iniciando..." : "Iniciar Scraping"}
                 </Button>
+
+                {/* Mensaje de scraping en progreso */}
+                {isLoading && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mt-0.5 flex-shrink-0"></div>
+                      <p className="text-sm text-blue-800 leading-relaxed">
+                        <span className="font-bold">Scrapeando....., puede tomar entre 1 a 5 min</span>, dependiendo de
+                        la cantidad de leads que vayamos a traer
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Lado derecho: High Level fields y Mapa */}
