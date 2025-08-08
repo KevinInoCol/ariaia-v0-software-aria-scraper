@@ -39,6 +39,9 @@ interface ScrapingResult {
   companySize?: string | null
   industry?: string | null
   city?: string | null
+
+  // Modelo de Negocio - solo cuando getBusinessModel = true
+  businessModel?: string | null
 }
 
 // Add this interface at the top after the existing interfaces
@@ -177,6 +180,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             "Ciudad",
           ]
         : []),
+      // Modelo de Negocio - solo cuando getBusinessModel = true
+      ...(getBusinessModel ? ["Modelo de Negocio"] : []),
     ]
 
     // Convertir los datos incluyendo todos los campos
@@ -212,7 +217,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             ]
           : []
 
-        return [...basicData, ...premiumData].join(",")
+        const businessModelData = getBusinessModel
+          ? [`"${(result.businessModel || "-").replace(/"/g, '""')}"`]
+          : []
+
+        return [...basicData, ...premiumData, ...businessModelData].join(",")
       }),
     ].join("\n")
 
@@ -914,6 +923,14 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                               </th>
                             </>
                           )}
+                          {getBusinessModel && (
+                            <th
+                              colSpan={1}
+                              className="px-3 py-2 text-center text-sm font-semibold text-orange-700 bg-orange-50 border-b border-orange-200"
+                            >
+                              🏪 Modelo de Negocio
+                            </th>
+                          )}
                         </tr>
                         {/* Fila de headers de columnas */}
                         <tr>
@@ -987,6 +1004,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                               </th>
                             </>
                           )}
+                          {getBusinessModel && (
+                            <th className="px-3 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider whitespace-nowrap">
+                              Modelo de Negocio
+                            </th>
+                          )}
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
@@ -1057,6 +1079,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                                   {result.city || "-"}
                                 </td>
                               </>
+                            )}
+                            {getBusinessModel && (
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-orange-600">
+                                {result.businessModel || "-"}
+                              </td>
                             )}
                           </tr>
                         ))}
