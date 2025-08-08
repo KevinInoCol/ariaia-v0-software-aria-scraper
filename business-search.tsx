@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Search, Info } from "lucide-react"
+import { Settings, Search, Info } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import LeafletMap from "./components/LeafletMap"
 import LeafletStyles from "./components/LeafletStyles"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown } from 'lucide-react'
 import { useRouter } from "next/navigation"
 
 // Tipo para los datos del scraping - actualizado con todos los nuevos campos
@@ -87,6 +87,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   const [businessType, setBusinessType] = useState("")
   const [location, setLocation] = useState("")
   const [getEmails, setGetEmails] = useState(false)
+  const [getBusinessModel, setGetBusinessModel] = useState(false)
   const [showLeadsDropdown, setShowLeadsDropdown] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -282,6 +283,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         businessType: businessType.trim(),
         location: location.trim(),
         getEmails: getEmails,
+        getBusinessModel: getBusinessModel,
         timestamp: new Date().toISOString(),
         userId: userId,
         correo_electronico: userEmail, // Cambiar de correoElectronico a correo_electronico para coincidir con usuarios_scraper
@@ -619,6 +621,26 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                     <p>
                       <strong>Nota:</strong> El éxito del enriquecimiento depende de la información pública de cada
                       empresa.
+                    </p>
+                  </div>
+                </div>
+                {/* Nuevo checkbox para modelo de negocio */}
+                <div className="flex items-center space-x-2 mt-3">
+                  <Checkbox
+                    id="get-business-model"
+                    checked={getBusinessModel}
+                    onCheckedChange={(checked) => setGetBusinessModel(checked === true)}
+                  />
+                  <Label htmlFor="get-business-model" className="text-sm font-medium text-gray-700 cursor-pointer">
+                    Obtener el modelo de negocio de la empresa o lead scrapeado
+                  </Label>
+                </div>
+                {/* Nota informativa sobre el modelo de negocio */}
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-amber-800">
+                    <p>
+                      Solo se obtendrá el modelo de negocio si la empresa o lead scrapeada tiene disponible su website o sitio web
                     </p>
                   </div>
                 </div>
