@@ -102,6 +102,13 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   const [leadsScrapedCount, setLeadsScrapedCount] = useState(0)
   const [remainingLeads, setRemainingLeads] = useState(0)
 
+  // Estados para LinkedIn
+  const [linkedinUsername, setLinkedinUsername] = useState("")
+  const [linkedinPassword, setLinkedinPassword] = useState("")
+  const [isLinkedinLoading, setIsLinkedinLoading] = useState(false)
+  const [linkedinError, setLinkedinError] = useState("")
+  const [linkedinSuccess, setLinkedinSuccess] = useState("")
+
   const [activeSection, setActiveSection] = useState("leads") // Default to leads section
   const [showLinkedInSection, setShowLinkedInSection] = useState(false)
 
@@ -446,6 +453,80 @@ export default function Component({ onLogout }: BusinessSearchProps) {
     }
   }
 
+  const handleSaveLinkedinCredentials = async () => {
+    // Validar campos requeridos
+    if (!linkedinUsername.trim()) {
+      setLinkedinError("El username de LinkedIn es requerido")
+      return
+    }
+
+    if (!linkedinPassword.trim()) {
+      setLinkedinError("La contraseña de LinkedIn es requerida")
+      return
+    }
+
+    setIsLinkedinLoading(true)
+    setLinkedinError("")
+    setLinkedinSuccess("")
+
+    try {
+      // Obtener información del usuario desde localStorage
+      const userDataString = localStorage.getItem("aria_user_data")
+      let userEmail = ""
+
+      if (userDataString) {
+        try {
+          const userData = JSON.parse(userDataString)
+          userEmail = userData.email || userData.correo_electronico || userData.correoElectronico || ""
+        } catch (parseError) {
+          console.error("Error al parsear datos del usuario:", parseError)
+        }
+      }
+
+      // Preparar datos para enviar
+      const linkedinData = {
+        username: linkedinUsername.trim(),
+        password: linkedinPassword.trim(),
+        userEmail: userEmail,
+        timestamp: new Date().toISOString(),
+      }
+
+      console.log("Enviando credenciales de LinkedIn:", { ...linkedinData, password: "***" })
+
+      const response = await fetch("https://n8n.ariaia.com/webhook-test/mensaje-aria-scraper", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(linkedinData),
+      })
+
+      console.log("Respuesta del servidor LinkedIn:", response.status, response.statusText)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage =
+          errorData.detail || errorData.message || `Error HTTP: ${response.status} - ${response.statusText}`
+        setLinkedinError(errorMessage)
+        console.error("Error HTTP LinkedIn:", response.status, errorData)
+        return
+      }
+
+      // Éxito
+      setLinkedinSuccess("✅ Credenciales de LinkedIn guardadas exitosamente")
+      // Limpiar los campos después del envío exitoso
+      setLinkedinUsername("")
+      setLinkedinPassword("")
+    } catch (err) {
+      console.error("Error completo LinkedIn:", err)
+      setLinkedinError(
+        `Error de conexión: ${err instanceof Error ? err.message : "Error desconocido"}. Verifica tu conexión.`,
+      )
+    } finally {
+      setIsLinkedinLoading(false)
+    }
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -590,17 +671,100 @@ export default function Component({ onLogout }: BusinessSearchProps) {
               </p>
             </div>
 
-            {/* Aquí irá el contenido de la funcionalidad de LinkedIn */}
-            <div className="bg-gray-50 rounded-lg p-8 text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
+            {/* Formulario de credenciales de LinkedIn */}
+            <div className="max-w-2xl space-y-6">
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Credenciales de LinkedIn</h2>
+
+                <div className="space-y-4">
+                  {/* Campo Username */}
+                  <div>
+                    <Label htmlFor="linkedin-username" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Username de LinkedIn
+                    </Label>
+                    <Input
+                      id="linkedin-username"
+                      type="text"
+                      placeholder="tu-email@ejemplo.com"
+                      className="w-full"
+                      value={linkedinUsername}
+                      onChange={(e) => setLinkedinUsername(e.target.value)}
+                      disabled={isLinkedinLoading}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Ingresa el email o username que usas para iniciar sesión en LinkedIn
+                    </p>
+                  </div>
+
+                  {/* Campo Password */}
+                  <div>
+                    <Label htmlFor="linkedin-password" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Password de LinkedIn
+                    </Label>
+                    <Input
+                      id="linkedin-password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="w-full"
+                      value={linkedinPassword}
+                      onChange={(e) => setLinkedinPassword(e.target.value)}
+                      disabled={isLinkedinLoading}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Tu contraseña será encriptada y almacenada de forma segura
+                    </p>
+                  </div>
+                </div>
+
+                {/* Nota de seguridad */}
+                <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mt-4">
+                  <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-blue-800">
+                    <p className="font-medium mb-1">Información de Seguridad</p>
+                    <p>
+                      Tus credenciales de LinkedIn son almacenadas de forma segura y encriptada. Solo se utilizan para
+                      automatizar el envío de conexiones según tu configuración.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mensajes de error y éxito */}
+                {linkedinError && (
+                  <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
+                    {linkedinError}
+                  </div>
+                )}
+
+                {linkedinSuccess && (
+                  <div className="text-green-600 text-sm bg-green-50 p-3 rounded border border-green-200">
+                    {linkedinSuccess}
+                  </div>
+                )}
+
+                {/* Botón de guardar credenciales */}
+                <div className="mt-6">
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 disabled:opacity-50"
+                    onClick={handleSaveLinkedinCredentials}
+                    disabled={isLinkedinLoading || !linkedinUsername.trim() || !linkedinPassword.trim()}
+                  >
+                    {isLinkedinLoading ? "Guardando..." : "Guardar Credenciales"}
+                  </Button>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Funcionalidad en Desarrollo</h3>
-              <p className="text-gray-600">
-                Esta sección permitirá automatizar el envío de solicitudes de conexión en LinkedIn.
-              </p>
+
+              {/* Sección adicional para futuras funcionalidades */}
+              <div className="bg-gray-50 rounded-lg p-6 text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Próximamente</h3>
+                <p className="text-gray-600">
+                  Una vez guardadas las credenciales, podrás configurar campañas automáticas de conexión.
+                </p>
+              </div>
             </div>
           </div>
         ) : (
