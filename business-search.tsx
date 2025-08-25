@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import LeafletMap from "./components/LeafletMap"
 import LeafletStyles from "./components/LeafletStyles"
+import ChatwootWidget from "./components/ChatwootWidget"
 import { ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -529,6 +530,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Chatwoot Widget */}
+      <ChatwootWidget />
+
       {/* Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
         {/* Logo - Reorganizado verticalmente */}
