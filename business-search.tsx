@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Settings, Search, Info } from "lucide-react"
+import { Settings, Search, Info, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -109,6 +109,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   const [isLinkedinLoading, setIsLinkedinLoading] = useState(false)
   const [linkedinError, setLinkedinError] = useState("")
   const [linkedinSuccess, setLinkedinSuccess] = useState("")
+  const [showLinkedinPassword, setShowLinkedinPassword] = useState(false)
 
   const [activeSection, setActiveSection] = useState("leads") // Default to leads section
   const [showLinkedInSection, setShowLinkedInSection] = useState(false)
@@ -705,15 +706,29 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                     <Label htmlFor="linkedin-password" className="text-sm font-medium text-gray-700 mb-2 block">
                       Password de LinkedIn
                     </Label>
-                    <Input
-                      id="linkedin-password"
-                      type="password"
-                      placeholder="••••••••"
-                      className="w-full"
-                      value={linkedinPassword}
-                      onChange={(e) => setLinkedinPassword(e.target.value)}
-                      disabled={isLinkedinLoading}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="linkedin-password"
+                        type={showLinkedinPassword ? "text" : "password"}
+                        placeholder="Ingresa tu contraseña"
+                        className="w-full pr-10"
+                        value={linkedinPassword}
+                        onChange={(e) => setLinkedinPassword(e.target.value)}
+                        disabled={isLinkedinLoading}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowLinkedinPassword(!showLinkedinPassword)}
+                        disabled={isLinkedinLoading}
+                      >
+                        {showLinkedinPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
                     <p className="text-xs text-gray-500 mt-1">
                       Tu contraseña será encriptada y almacenada de forma segura
                     </p>
