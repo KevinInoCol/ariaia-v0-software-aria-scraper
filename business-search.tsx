@@ -309,7 +309,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       console.log("Enviando datos a usuarios_scraper:", scrapingData)
       console.log("Email del usuario (usuarios_scraper):", userEmail)
 
-      const response = await fetch("https://software-aria-software-scraper.0ogkj4.easypanel.host/start-scraping", {
+      const response = await fetch("https://c9704637bb26.ngrok-free.app/start-scraping", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
