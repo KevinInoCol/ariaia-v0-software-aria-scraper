@@ -355,102 +355,123 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         return
       }
 
-      // Intentar obtener los resultados del scraping
-      const responseData = await response.json().catch(() => null)
-      console.log("Datos recibidos:", responseData)
+      // Obtener la respuesta inicial con el jobId
+      const initialResponse = await response.json().catch(() => null)
+      console.log("Respuesta inicial:", initialResponse)
 
-      // Si la respuesta contiene resultados, mostrarlos y actualizar el contador
-      if (responseData && responseData.data && Array.isArray(responseData.data)) {
-        setScrapingResults(responseData.data)
-        const count = responseData.results_count || responseData.data.length
-        setSuccess(`Scraping completado exitosamente. ${count} resultados encontrados.`)
-
-        // Actualizar el contador desde la base de datos después del scraping exitoso
-        const userDataString = localStorage.getItem("aria_user_data")
-        if (userDataString) {
-          try {
-            const userData = JSON.parse(userDataString)
-            const userEmail = userData.email || userData.correo_electronico || userData.correoElectronico || ""
-
-            if (userEmail) {
-              // Obtener datos actualizados desde la base de datos
-              const freshUserData = await fetchUserDataFromDB(userEmail)
-              if (freshUserData) {
-                setLeadsScrapedCount(freshUserData.numero_leads_scrapeados || 0)
-              }
-            }
-          } catch (error) {
-            console.error("Error al actualizar contador desde DB:", error)
-          }
-        }
-
-        // Actualizar el contador de leads scrapeados
-        setLeadsScrapedCount((prev) => prev + count)
-        // Actualizar leads restantes
-        setRemainingLeads((prev) => Math.max(0, prev - count))
-      } else if (responseData && Array.isArray(responseData.results)) {
-        setScrapingResults(responseData.results)
-        setSuccess(`Scraping completado exitosamente. ${responseData.results.length} resultados encontrados.`)
-
-        // Actualizar el contador desde la base de datos después del scraping exitoso
-        const userDataString = localStorage.getItem("aria_user_data")
-        if (userDataString) {
-          try {
-            const userData = JSON.parse(userDataString)
-            const userEmail = userData.email || userData.correo_electronico || userData.correoElectronico || ""
-
-            if (userEmail) {
-              // Obtener datos actualizados desde la base de datos
-              const freshUserData = await fetchUserDataFromDB(userEmail)
-              if (freshUserData) {
-                setLeadsScrapedCount(freshUserData.numero_leads_scrapeados || 0)
-              }
-            }
-          } catch (error) {
-            console.error("Error al actualizar contador desde DB:", error)
-          }
-        }
-
-        // Actualizar el contador de leads scrapeados
-        setLeadsScrapedCount((prev) => prev + responseData.results.length)
-        // Actualizar leads restantes
-        setRemainingLeads((prev) => Math.max(0, prev - responseData.results.length))
-      } else if (responseData && Array.isArray(responseData)) {
-        setScrapingResults(responseData)
-        setSuccess(`Scraping completado exitosamente. ${responseData.length} resultados encontrados.`)
-
-        // Actualizar el contador desde la base de datos después del scraping exitoso
-        const userDataString = localStorage.getItem("aria_user_data")
-        if (userDataString) {
-          try {
-            const userData = JSON.parse(userDataString)
-            const userEmail = userData.email || userData.correo_electronico || userData.correoElectronico || ""
-
-            if (userEmail) {
-              // Obtener datos actualizados desde la base de datos
-              const freshUserData = await fetchUserDataFromDB(userEmail)
-              if (freshUserData) {
-                setLeadsScrapedCount(freshUserData.numero_leads_scrapeados || 0)
-              }
-            }
-          } catch (error) {
-            console.error("Error al actualizar contador desde DB:", error)
-          }
-        }
-
-        // Actualizar el contador de leads scrapeados
-        setLeadsScrapedCount((prev) => prev + responseData.length)
-        // Actualizar leads restantes
-        setRemainingLeads((prev) => Math.max(0, prev - responseData.length))
-      } else {
-        setSuccess("Datos enviados al webhook exitosamente")
+      // Verificar que tenemos el jobId
+      if (!initialResponse || initialResponse.status !== "success" || !initialResponse.jobId) {
+        setError("Error: No se pudo obtener el ID del trabajo. Respuesta inválida del servidor.")
+        return
       }
+
+      const jobId = initialResponse.jobId
+      console.log("JobId obtenido:", jobId)
+
+      // Mostrar mensaje de scraping en progreso
+      setSuccess(
+        "Scrapeando leads... puede tomar entre 1 a 5 min, dependiendo de la cantidad de leads que vayamos a traer",
+      )
+
+      // Función para consultar el estado del trabajo
+      const pollJobStatus = async () => {
+        try {
+          const jobResponse = await fetch(`https://c9704637bb26.ngrok-free.app/job/${jobId}`)
+
+          if (!jobResponse.ok) {
+            console.error("Error consultando estado del trabajo:", jobResponse.status, jobResponse.statusText)
+            return false // Continuar polling
+          }
+
+          const jobData = await jobResponse.json()
+          console.log("Estado del trabajo:", jobData)
+
+          if (jobData.status === "COMPLETED") {
+            // Trabajo completado, procesar resultados
+            if (jobData.results && jobData.results.data && Array.isArray(jobData.results.data)) {
+              setScrapingResults(jobData.results.data)
+              const count = jobData.results.results_count || jobData.results.data.length
+              setSuccess(`Scraping completado exitosamente. ${count} resultados encontrados.`)
+
+              // Actualizar el contador desde la base de datos después del scraping exitoso
+              const userDataString = localStorage.getItem("aria_user_data")
+              if (userDataString) {
+                try {
+                  const userData = JSON.parse(userDataString)
+                  const userEmail = userData.email || userData.correo_electronico || userData.correoElectronico || ""
+
+                  if (userEmail) {
+                    // Obtener datos actualizados desde la base de datos
+                    const freshUserData = await fetchUserDataFromDB(userEmail)
+                    if (freshUserData) {
+                      setLeadsScrapedCount(freshUserData.numero_leads_scrapeados || 0)
+                      setRemainingLeads(freshUserData.remaining_leads || 0)
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error al actualizar contador desde DB:", error)
+                }
+              }
+
+              // Actualizar contadores locales
+              setLeadsScrapedCount((prev) => prev + count)
+              setRemainingLeads((prev) => Math.max(0, prev - count))
+            } else if (jobData.results && Array.isArray(jobData.results.results)) {
+              setScrapingResults(jobData.results.results)
+              setSuccess(`Scraping completado exitosamente. ${jobData.results.results.length} resultados encontrados.`)
+
+              // Actualizar contadores
+              setLeadsScrapedCount((prev) => prev + jobData.results.results.length)
+              setRemainingLeads((prev) => Math.max(0, prev - jobData.results.results.length))
+            } else if (jobData.results && Array.isArray(jobData.results)) {
+              setScrapingResults(jobData.results)
+              setSuccess(`Scraping completado exitosamente. ${jobData.results.length} resultados encontrados.`)
+
+              // Actualizar contadores
+              setLeadsScrapedCount((prev) => prev + jobData.results.length)
+              setRemainingLeads((prev) => Math.max(0, prev - jobData.results.length))
+            } else {
+              setSuccess("Scraping completado exitosamente")
+            }
+
+            return true // Detener polling
+          } else if (jobData.status === "FAILED" || jobData.status === "ERROR") {
+            // Trabajo falló
+            setError(`Error en el scraping: ${jobData.message || "Error desconocido"}`)
+            return true // Detener polling
+          } else {
+            // Trabajo aún en progreso (PENDING, PROCESSING, etc.)
+            console.log("Trabajo aún en progreso, continuando polling...")
+            return false // Continuar polling
+          }
+        } catch (error) {
+          console.error("Error consultando estado del trabajo:", error)
+          return false // Continuar polling en caso de error de red
+        }
+      }
+
+      // Iniciar polling cada 4 segundos
+      const pollInterval = setInterval(async () => {
+        const shouldStop = await pollJobStatus()
+        if (shouldStop) {
+          clearInterval(pollInterval)
+          setIsLoading(false)
+        }
+      }, 4000)
+
+      // Timeout de seguridad (10 minutos máximo)
+      setTimeout(() => {
+        clearInterval(pollInterval)
+        if (isLoading) {
+          setIsLoading(false)
+          setError("Timeout: El scraping está tomando más tiempo del esperado. Por favor, intenta nuevamente.")
+        }
+      }, 600000) // 10 minutos
     } catch (err) {
       console.error("Error completo:", err)
       setError(
         `Error de conexión: ${err instanceof Error ? err.message : "Error desconocido"}. Verifica la URL del webhook y tu conexión.`,
       )
-    } finally {
       setIsLoading(false)
     }
   }
