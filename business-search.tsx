@@ -309,7 +309,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       console.log("Enviando datos a usuarios_scraper:", scrapingData)
       console.log("Email del usuario (usuarios_scraper):", userEmail)
 
-      const response = await fetch("https://c9704637bb26.ngrok-free.app/start-scraping", {
+      const response = await fetch("https://kevin-inofuente-ai-developer.ngrok.app/start-scraping", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -376,7 +376,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Función para consultar el estado del trabajo
       const pollJobStatus = async () => {
         try {
-          const jobResponse = await fetch(`https://c9704637bb26.ngrok-free.app/job/${jobId}`)
+          const jobResponse = await fetch(`https://kevin-inofuente-ai-developer.ngrok.app/job/${jobId}`)
 
           if (!jobResponse.ok) {
             console.error("Error consultando estado del trabajo:", jobResponse.status, jobResponse.statusText)
