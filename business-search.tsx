@@ -263,6 +263,19 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       return
     }
 
+    // Validar formato de localización (debe tener exactamente 3 partes separadas por comas)
+    const locationParts = location
+      .trim()
+      .split(",")
+      .map((part) => part.trim())
+      .filter((part) => part.length > 0)
+    if (locationParts.length !== 3) {
+      setError(
+        "La localización debe tener exactamente 3 parámetros separados por comas. Ejemplo: San Isidro, Lima, Perú",
+      )
+      return
+    }
+
     setIsLoading(true)
     setError("")
     setSuccess("")
