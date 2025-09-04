@@ -309,7 +309,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       console.log("Enviando datos a usuarios_scraper:", scrapingData)
       console.log("Email del usuario (usuarios_scraper):", userEmail)
 
-      const response = await fetch("https://kevin-inofuente-ai-developer.ngrok.app/start-scraping", {
+      const response = await fetch("https://software-aria-software-scraper.0ogkj4.easypanel.host/start-scraping", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -376,7 +376,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Función para consultar el estado del trabajo
       const pollJobStatus = async () => {
         try {
-          const jobResponse = await fetch(`https://kevin-inofuente-ai-developer.ngrok.app/job/${jobId}`)
+          const jobResponse = await fetch(`https://software-aria-software-scraper.0ogkj4.easypanel.host/job/${jobId}`)
 
           if (!jobResponse.ok) {
             console.error("Error consultando estado del trabajo:", jobResponse.status, jobResponse.statusText)
@@ -805,6 +805,229 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                   Una vez guardadas las credenciales, podrás configurar campañas automáticas de conexión.
                 </p>
               </div>
+
+              {/* Tabla de Resultados del Scraping - También disponible en LinkedIn */}
+              {scrapingResults.length > 0 && (
+                <div className="mt-8 w-full space-y-6">
+                  {/* Botón de Descarga CSV */}
+                  <div className="flex justify-center mb-6">
+                    <Button
+                      onClick={downloadCSV}
+                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    >
+                      📥 Descargar CSV de la Tabla de Leads Scrapeados hacia tu computador
+                    </Button>
+                  </div>
+
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                    Leads Disponibles para LinkedIn ({scrapingResults.length} encontrados)
+                  </h2>
+
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          {/* Fila de agrupación superior */}
+                          <tr>
+                            {/* Datos Básicos Extraídos - Azul */}
+                            <th
+                              colSpan={8}
+                              className="px-3 py-2 text-center text-sm font-semibold text-blue-700 bg-blue-50 border-b border-blue-200"
+                            >
+                              📊 Datos Básicos Extraídos
+                            </th>
+                            {getEmails && (
+                              <>
+                                {/* Información Premium del Contacto (Persona) - Verde */}
+                                <th
+                                  colSpan={6}
+                                  className="px-3 py-2 text-center text-sm font-semibold text-green-700 bg-green-50 border-b border-green-200"
+                                >
+                                  👤 Información Premium del Contacto (Persona)
+                                </th>
+                                {/* Información Premium de la Empresa - Púrpura */}
+                                <th
+                                  colSpan={7}
+                                  className="px-3 py-2 text-center text-sm font-semibold text-purple-700 bg-purple-50 border-b border-purple-200"
+                                >
+                                  🏢 Información Premium de la Empresa
+                                </th>
+                              </>
+                            )}
+                            {getBusinessModel && (
+                              <th
+                                colSpan={1}
+                                className="px-3 py-2 text-center text-sm font-semibold text-orange-700 bg-orange-50 border-b border-orange-200"
+                              >
+                                🏪 Modelo de Negocio
+                              </th>
+                            )}
+                          </tr>
+                          {/* Fila de headers de columnas */}
+                          <tr>
+                            {/* Datos Básicos */}
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Nombre del Lugar
+                            </th>
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Categoría
+                            </th>
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Dirección
+                            </th>
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Barrio
+                            </th>
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Calle
+                            </th>
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Sitio Web
+                            </th>
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Teléfono
+                            </th>
+                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                              Teléfono (Sin formato)
+                            </th>
+                            {getEmails && (
+                              <>
+                                {/* Información Premium del Contacto (Persona) */}
+                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
+                                  Nombre Completo
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
+                                  Cargo
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
+                                  Email
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
+                                  Emails Adicionales
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
+                                  LinkedIn Personal
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
+                                  Teléfono Móvil
+                                </th>
+                                {/* Información Premium de la Empresa */}
+                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
+                                  Nombre Empresa
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
+                                  Sitio Web Empresa
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
+                                  LinkedIn Empresa
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
+                                  Teléfono Empresa
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
+                                  Tamaño Empresa
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
+                                  Industria
+                                </th>
+                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
+                                  Ciudad
+                                </th>
+                              </>
+                            )}
+                            {getBusinessModel && (
+                              <th className="px-3 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider whitespace-nowrap">
+                                Modelo de Negocio
+                              </th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {scrapingResults.map((result, index) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              {/* Datos Básicos */}
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.title || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.categoryName || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.address || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.neighborhood || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.street || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.website || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.phone || "-"}
+                              </td>
+                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.phoneUnformatted || "-"}
+                              </td>
+                              {getEmails && (
+                                <>
+                                  {/* Información Premium del Contacto (Persona) */}
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
+                                    {result.fullName || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
+                                    {result.jobTitle || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
+                                    {result.email || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
+                                    {result.emails && Array.isArray(result.emails) ? result.emails.join("; ") : "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
+                                    {result.linkedinProfile || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
+                                    {result.mobileNumber || "-"}
+                                  </td>
+                                  {/* Información Premium de la Empresa */}
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
+                                    {result.companyName || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
+                                    {result.companyWebsite || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
+                                    {result.companyLinkedin || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
+                                    {result.companyPhoneNumber || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
+                                    {result.companySize || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
+                                    {result.industry || "-"}
+                                  </td>
+                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
+                                    {result.city || "-"}
+                                  </td>
+                                </>
+                              )}
+                              {getBusinessModel && (
+                                <td className="px-3 py-4 whitespace-nowrap text-sm text-orange-600">
+                                  {result.businessModel || "-"}
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -886,23 +1109,27 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                     </div>
                   </div>
                   {/* Nuevo checkbox para modelo de negocio */}
-                  <div className="flex items-center space-x-2 mt-3">
+                  <div className="flex items-center space-x-2 mt-3 opacity-50">
                     <Checkbox
                       id="get-business-model"
-                      checked={getBusinessModel}
-                      onCheckedChange={(checked) => setGetBusinessModel(checked === true)}
+                      checked={false}
+                      disabled={true}
+                      onCheckedChange={() => {}} // No hacer nada
                     />
-                    <Label htmlFor="get-business-model" className="text-sm font-medium text-gray-700 cursor-pointer">
-                      Obtener el modelo de negocio de la empresa o lead scrapeado
+                    <Label
+                      htmlFor="get-business-model"
+                      className="text-sm font-medium text-gray-400 cursor-not-allowed"
+                    >
+                      Obtener el modelo de negocio de la empresa o lead scrapeado (Próximamente)
                     </Label>
                   </div>
-                  {/* Nota informativa sobre el modelo de negocio */}
-                  <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                    <div className="text-xs text-amber-800">
+                  {/* Nota informativa sobre el modelo de negocio - DESHABILITADA */}
+                  <div className="flex items-start gap-2 p-3 bg-gray-50 border border-gray-200 rounded-lg opacity-50">
+                    <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-gray-500">
                       <p>
-                        Solo se obtendrá el modelo de negocio si la empresa o lead scrapeada tiene disponible su website
-                        o sitio web
+                        Esta funcionalidad estará disponible próximamente. Solo se obtendrá el modelo de negocio si la
+                        empresa o lead scrapeada tiene disponible su website o sitio web
                       </p>
                     </div>
                   </div>
