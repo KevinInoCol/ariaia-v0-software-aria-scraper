@@ -118,6 +118,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   const [linkedinSuccess, setLinkedinSuccess] = useState("")
   const [showLinkedinPassword, setShowLinkedinPassword] = useState(false)
 
+  // Estados para el Paso 2: Modelo de Negocio
+  const [isBusinessModelLoading, setIsBusinessModelLoading] = useState(false)
+  const [businessModelError, setBusinessModelError] = useState("")
+  const [businessModelSuccess, setBusinessModelSuccess] = useState("")
+
   const [activeSection, setActiveSection] = useState("leads") // Default to leads section
   const [showLinkedInSection, setShowLinkedInSection] = useState(false)
 
@@ -211,8 +216,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             "Ciudad",
           ]
         : []),
-      // Modelo de Negocio - solo cuando getBusinessModel = true
-      ...(getBusinessModel ? ["Modelo de Negocio"] : []),
+      // Modelo de Negocio - siempre incluir si hay resultados
+      ...(scrapingResults.length > 0 ? ["Modelo de Negocio"] : []),
     ]
 
     // Convertir los datos incluyendo todos los campos
@@ -248,7 +253,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             ]
           : []
 
-        const businessModelData = getBusinessModel ? [`"${(result.businessModel || "-").replace(/"/g, '""')}"`] : []
+        const businessModelData =
+          scrapingResults.length > 0 ? [`"${(result.businessModel || "-").replace(/"/g, '""')}"`] : []
 
         return [...basicData, ...premiumData, ...businessModelData].join(",")
       }),
@@ -918,7 +924,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                                 </th>
                               </>
                             )}
-                            {getBusinessModel && (
+                            {scrapingResults.length > 0 && (
                               <th
                                 colSpan={1}
                                 className="px-3 py-2 text-center text-sm font-semibold text-orange-700 bg-orange-50 border-b border-orange-200"
@@ -999,7 +1005,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                                 </th>
                               </>
                             )}
-                            {getBusinessModel && (
+                            {scrapingResults.length > 0 && (
                               <th className="px-3 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider whitespace-nowrap">
                                 Modelo de Negocio
                               </th>
@@ -1079,7 +1085,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                                   </td>
                                 </>
                               )}
-                              {getBusinessModel && (
+                              {scrapingResults.length > 0 && (
                                 <td className="px-3 py-4 whitespace-nowrap text-sm text-orange-600">
                                   {result.businessModel || "-"}
                                 </td>
@@ -1172,31 +1178,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                       </p>
                     </div>
                   </div>
-                  {/* Nuevo checkbox para modelo de negocio */}
-                  <div className="flex items-center space-x-2 mt-3 opacity-50">
-                    <Checkbox
-                      id="get-business-model"
-                      checked={false}
-                      disabled={true}
-                      onCheckedChange={() => {}} // No hacer nada
-                    />
-                    <Label
-                      htmlFor="get-business-model"
-                      className="text-sm font-medium text-gray-400 cursor-not-allowed"
-                    >
-                      Obtener el modelo de negocio de la empresa o lead scrapeado (Próximamente)
-                    </Label>
-                  </div>
-                  {/* Nota informativa sobre el modelo de negocio - DESHABILITADA */}
-                  <div className="flex items-start gap-2 p-3 bg-gray-50 border border-gray-200 rounded-lg opacity-50">
-                    <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div className="text-xs text-gray-500">
-                      <p>
-                        Esta funcionalidad estará disponible próximamente. Solo se obtendrá el modelo de negocio si la
-                        empresa o lead scrapeada tiene disponible su website o sitio web
-                      </p>
-                    </div>
-                  </div>
+
                   <Button
                     className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-8 mt-4"
                     onClick={handleStartScraping}
@@ -1234,6 +1216,158 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                         <p className="text-sm text-gray-700">
                           <span className="font-medium">Tiempo transcurrido:</span> {formatElapsedTime(elapsedTime)}
                         </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Paso 2: Obtener Modelo de Negocio */}
+                  {scrapingResults.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-purple-800 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          2
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900">Obtener Modelo de Negocio</h3>
+                      </div>
+
+                      <p className="text-sm text-gray-600 mb-4">
+                        Analiza las websites de los leads scrapeados para obtener información sobre su modelo de
+                        negocio.
+                      </p>
+
+                      <Button
+                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 px-8"
+                        onClick={async () => {
+                          setIsBusinessModelLoading(true)
+                          setBusinessModelError("")
+                          setBusinessModelSuccess("")
+
+                          try {
+                            // Filtrar solo los leads que tienen website
+                            const leadsWithWebsite = scrapingResults.filter(
+                              (lead) => lead.website && lead.website.trim() !== "" && lead.website !== "-",
+                            )
+
+                            if (leadsWithWebsite.length === 0) {
+                              setBusinessModelError(
+                                "No se encontraron leads con website para analizar el modelo de negocio.",
+                              )
+                              return
+                            }
+
+                            // Obtener información del usuario desde localStorage
+                            const userDataString = localStorage.getItem("aria_user_data")
+                            let userEmail = ""
+
+                            if (userDataString) {
+                              try {
+                                const userData = JSON.parse(userDataString)
+                                userEmail =
+                                  userData.email || userData.correo_electronico || userData.correoElectronico || ""
+                              } catch (parseError) {
+                                console.error("Error al parsear datos del usuario:", parseError)
+                              }
+                            }
+
+                            // Preparar datos para enviar
+                            const businessModelData = {
+                              leads: leadsWithWebsite,
+                              userEmail: userEmail,
+                              timestamp: new Date().toISOString(),
+                            }
+
+                            console.log("Enviando datos para análisis de modelo de negocio:", businessModelData)
+
+                            const response = await fetch(
+                              "https://software-aria-software-scraper.0ogkj4.easypanel.host/analyze-business-model",
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(businessModelData),
+                              },
+                            )
+
+                            if (!response.ok) {
+                              const errorData = await response.json().catch(() => ({}))
+                              const errorMessage =
+                                errorData.detail ||
+                                errorData.message ||
+                                `Error HTTP: ${response.status} - ${response.statusText}`
+                              setBusinessModelError(errorMessage)
+                              return
+                            }
+
+                            const result = await response.json()
+                            console.log("Respuesta del análisis de modelo de negocio:", result)
+
+                            // Actualizar los resultados con los modelos de negocio obtenidos
+                            if (result.results && Array.isArray(result.results)) {
+                              const updatedResults = scrapingResults.map((lead) => {
+                                const businessModelResult = result.results.find((r) => r.website === lead.website)
+                                return {
+                                  ...lead,
+                                  businessModel: businessModelResult ? businessModelResult.businessModel : null,
+                                }
+                              })
+                              setScrapingResults(updatedResults)
+                              setBusinessModelSuccess(
+                                `✅ Análisis completado. Se analizaron ${result.results.length} websites exitosamente.`,
+                              )
+                            } else {
+                              setBusinessModelSuccess("✅ Análisis de modelo de negocio completado.")
+                            }
+                          } catch (err) {
+                            console.error("Error en análisis de modelo de negocio:", err)
+                            setBusinessModelError(
+                              `Error de conexión: ${err instanceof Error ? err.message : "Error desconocido"}`,
+                            )
+                          } finally {
+                            setIsBusinessModelLoading(false)
+                          }
+                        }}
+                        disabled={isBusinessModelLoading || scrapingResults.length === 0}
+                      >
+                        {isBusinessModelLoading ? "Analizando..." : "Paso 2: Obtener Modelo de Negocio"}
+                      </Button>
+
+                      {/* Mensaje de análisis en progreso */}
+                      {isBusinessModelLoading && (
+                        <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                          <div className="flex items-start gap-2">
+                            <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mt-0.5 flex-shrink-0"></div>
+                            <p className="text-sm text-purple-800 leading-relaxed">
+                              <span className="font-bold">Analizando modelos de negocio...</span> Esto puede tomar unos
+                              minutos dependiendo de la cantidad de websites a analizar.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mensajes de error y éxito para modelo de negocio */}
+                      {businessModelError && (
+                        <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200 mt-3">
+                          {businessModelError}
+                        </div>
+                      )}
+
+                      {businessModelSuccess && (
+                        <div className="text-green-600 text-sm bg-green-50 p-3 rounded border border-green-200 mt-3">
+                          {businessModelSuccess}
+                        </div>
+                      )}
+
+                      {/* Información sobre el proceso */}
+                      <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mt-3">
+                        <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-xs text-blue-800">
+                          <p className="font-medium mb-1">Información del Análisis</p>
+                          <p>
+                            Solo se analizarán los leads que tengan una website válida. El modelo de negocio se obtiene
+                            mediante análisis automatizado del contenido web de cada empresa.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1533,7 +1667,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                                 </th>
                               </>
                             )}
-                            {getBusinessModel && (
+                            {scrapingResults.length > 0 && (
                               <th
                                 colSpan={1}
                                 className="px-3 py-2 text-center text-sm font-semibold text-orange-700 bg-orange-50 border-b border-orange-200"
@@ -1614,7 +1748,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                                 </th>
                               </>
                             )}
-                            {getBusinessModel && (
+                            {scrapingResults.length > 0 && (
                               <th className="px-3 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider whitespace-nowrap">
                                 Modelo de Negocio
                               </th>
@@ -1694,7 +1828,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                                   </td>
                                 </>
                               )}
-                              {getBusinessModel && (
+                              {scrapingResults.length > 0 && (
                                 <td className="px-3 py-4 whitespace-nowrap text-sm text-orange-600">
                                   {result.businessModel || "-"}
                                 </td>
