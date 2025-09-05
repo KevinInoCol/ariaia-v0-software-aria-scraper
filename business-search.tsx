@@ -50,6 +50,13 @@ interface BusinessSearchProps {
   onLogout?: () => void
 }
 
+// Función para formatear el tiempo transcurrido
+const formatElapsedTime = (seconds: number): string => {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
+}
+
 // Función para obtener datos actualizados del usuario desde la base de datos
 const fetchUserDataFromDB = async (userEmail: string) => {
   try {
@@ -114,6 +121,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   const [activeSection, setActiveSection] = useState("leads") // Default to leads section
   const [showLinkedInSection, setShowLinkedInSection] = useState(false)
 
+  // Estados para el contador de tiempo
+  const [scrapingStartTime, setScrapingStartTime] = useState<number | null>(null)
+  const [elapsedTime, setElapsedTime] = useState(0)
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null)
+
   // Cargar el contador de leads scrapeados al montar el componente
   useEffect(() => {
     const loadUserData = async () => {
@@ -156,6 +168,15 @@ export default function Component({ onLogout }: BusinessSearchProps) {
     // Cleanup
     return () => clearInterval(interval)
   }, [])
+
+  // Cleanup del timer al desmontar el componente
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval)
+      }
+    }
+  }, [timerInterval])
 
   const downloadCSV = () => {
     if (scrapingResults.length === 0) return
@@ -270,13 +291,25 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       .map((part) => part.trim())
       .filter((part) => part.length > 0)
     if (locationParts.length !== 3) {
-      setError(
-        "La localización debe tener exactamente 3 parámetros separados por comas. Ejemplo: San Isidro, Lima, Perú",
-      )
+      setError("LOCATION_FORMAT_ERROR")
       return
     }
 
     setIsLoading(true)
+
+    // Iniciar contador de tiempo
+    const startTime = Date.now()
+    setScrapingStartTime(startTime)
+    setElapsedTime(0)
+
+    // Iniciar el intervalo del contador
+    const interval = setInterval(() => {
+      const currentTime = Date.now()
+      const elapsed = Math.floor((currentTime - startTime) / 1000)
+      setElapsedTime(elapsed)
+    }, 1000)
+    setTimerInterval(interval)
+
     setError("")
     setSuccess("")
     setPaymentError("")
@@ -469,6 +502,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         if (shouldStop) {
           clearInterval(pollInterval)
           setIsLoading(false)
+          // Detener contador de tiempo
+          if (timerInterval) {
+            clearInterval(timerInterval)
+            setTimerInterval(null)
+          }
         }
       }, 4000)
 
@@ -477,6 +515,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         clearInterval(pollInterval)
         if (isLoading) {
           setIsLoading(false)
+          // Detener contador de tiempo
+          if (timerInterval) {
+            clearInterval(timerInterval)
+            setTimerInterval(null)
+          }
           setError("Timeout: El scraping está tomando más tiempo del esperado. Por favor, intenta nuevamente.")
         }
       }, 600000) // 10 minutos
@@ -486,6 +529,11 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         `Error de conexión: ${err instanceof Error ? err.message : "Error desconocido"}. Verifica la URL del webhook y tu conexión.`,
       )
       setIsLoading(false)
+      // Detener contador de tiempo
+      if (timerInterval) {
+        clearInterval(timerInterval)
+        setTimerInterval(null)
+      }
     }
   }
 
@@ -1166,6 +1214,26 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                       </div>
                     </div>
                   )}
+
+                  {/* Contador de tiempo */}
+                  {(isLoading || elapsedTime > 0) && (
+                    <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-sm text-gray-700">
+                          <span className="font-medium">Tiempo transcurrido:</span> {formatElapsedTime(elapsedTime)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Lado derecho: High Level fields y Mapa */}
@@ -1346,7 +1414,51 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                 </div>
               )}
 
-              {error && error !== "LIMIT_REACHED" && (
+              {error && error === "LOCATION_FORMAT_ERROR" && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
+                    {/* Icono de información - círculo azul con signo de exclamación */}
+                    <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Título */}
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Formato de Localización Incorrecto</h2>
+
+                    {/* Mensaje principal */}
+                    <p className="text-lg text-gray-600 mb-4">
+                      La localización debe tener exactamente 3 parámetros separados por comas
+                    </p>
+
+                    {/* Ejemplo */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                      <p className="text-sm font-medium text-blue-800 mb-2">Ejemplo correcto:</p>
+                      <p className="text-base font-semibold text-blue-900">San Isidro, Lima, Perú</p>
+                    </div>
+
+                    {/* Descripción adicional */}
+                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                      Asegúrate de incluir el distrito/barrio, la ciudad y el país, separados por comas.
+                    </p>
+
+                    {/* Botón */}
+                    <Button
+                      onClick={() => setError("")}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-base"
+                    >
+                      Entendido
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {error && error !== "LIMIT_REACHED" && error !== "LOCATION_FORMAT_ERROR" && (
                 <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200 max-w-2xl">
                   {error}
                 </div>
