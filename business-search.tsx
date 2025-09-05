@@ -737,7 +737,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                 onLogout()
               }
             }}
-            className="w-full text-red-300 border-red-400/30 hover:bg-red-500/20 hover:border-red-400 bg-transparent transition-colors font-medium"
+            className="w-full text-blue-200 border-blue-600/30 hover:bg-red-500/20 hover:border-red-400/50 hover:text-red-300 bg-blue-800/30 transition-all duration-200 font-medium rounded-xl py-3"
           >
             Cerrar Sesión
           </Button>
