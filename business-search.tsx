@@ -617,53 +617,52 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       <ChatwootWidget />
 
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <div className="w-64 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 border-r border-blue-700 flex flex-col">
         {/* Logo - Reorganizado verticalmente */}
-        <div className="p-8 border-b border-gray-200">
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-20 h-20 rounded-xl overflow-hidden bg-black flex items-center justify-center">
-              <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/678de7d05086324127b72ad6_2-QJUy9a1uVH9X1AVXJPvPlKExR2kuoN.png"
-                alt="ARIA Logo"
-                className="w-16 h-16 object-contain"
-              />
+        <div className="p-8 border-b border-blue-700/50">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-blue-700/50 backdrop-blur-sm flex items-center justify-center border border-blue-600/30">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
             </div>
             <div>
-              <div className="font-bold text-xl text-gray-900">ARIA SCRAPER</div>
-              <div className="text-base text-blue-600 font-semibold">SUITE</div>
+              <div className="font-bold text-xl text-white">ARIA SCRAPER</div>
+              <div className="text-base text-blue-300 font-medium">SUITE</div>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 p-4">
-          <div className="space-y-2">
+        <div className="flex-1 p-6">
+          <div className="space-y-4">
             <div
-              className={`flex items-center gap-2 text-sm mb-4 cursor-pointer transition-colors rounded-lg p-3 ${
+              className={`flex items-center gap-3 text-sm cursor-pointer transition-colors rounded-xl p-4 ${
                 activeSection === "recharge"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                  ? "bg-blue-700/50 text-white border border-blue-600/30"
+                  : "text-blue-200 hover:text-white hover:bg-blue-700/30"
               }`}
               onClick={() => {
-                // Navigate to internal recarga leads page
                 router.push("/recarga-leads")
               }}
             >
-              <Settings className="w-4 h-4" />
-              <span>Recarga de Leads</span>
+              <Settings className="w-5 h-5" />
+              <span className="font-medium">Recarga de Leads</span>
             </div>
 
             <div
-              className={`rounded-lg p-3 mt-6 cursor-pointer transition-colors ${
-                activeSection === "leads" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              className={`rounded-xl p-4 cursor-pointer transition-colors border ${
+                activeSection === "leads"
+                  ? "bg-blue-700/50 text-white border-blue-600/30"
+                  : "bg-blue-800/30 text-blue-100 hover:bg-blue-700/40 border-blue-700/30"
               }`}
               onClick={() => {
                 setShowLeadsDropdown(!showLeadsDropdown)
                 setActiveSection("leads")
               }}
             >
-              <div className="flex items-center gap-2 font-semibold">
-                <Search className="w-4 h-4" />
+              <div className="flex items-center gap-3 font-medium">
+                <Search className="w-5 h-5" />
                 <span>Búsqueda de Leads</span>
                 <ChevronDown
                   className={`w-4 h-4 ml-auto transition-transform ${showLeadsDropdown ? "rotate-0" : "-rotate-90"}`}
@@ -672,59 +671,63 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             </div>
 
             {showLeadsDropdown && (
-              <div className="pl-4 space-y-2 text-sm text-gray-500 mt-2">
-                <div className="text-blue-600 font-medium cursor-pointer hover:text-blue-800 transition-colors py-1">
+              <div className="pl-4 space-y-3 text-sm">
+                <div className="text-blue-200 font-medium cursor-pointer hover:text-white transition-colors py-2">
                   Nueva Búsqueda
                 </div>
-                <div className="cursor-pointer hover:text-gray-700 transition-colors py-1 mb-4">Listas Guardadas</div>
+                <div className="cursor-pointer hover:text-white transition-colors py-2 text-blue-300">
+                  Listas Guardadas
+                </div>
 
                 {/* Contador de Leads Scrapeados */}
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mt-4 border border-blue-100">
+                <div className="bg-blue-800/40 backdrop-blur-sm rounded-xl p-4 mt-4 border border-blue-700/30">
                   <div className="text-center">
-                    <div className="text-sm font-medium text-blue-600 mb-1">Scrapeaste:</div>
-                    <div className="text-3xl font-bold text-blue-600 mb-2">{leadsScrapedCount.toLocaleString()}</div>
-                    <div className="text-xs text-gray-600 leading-tight mb-4">
+                    <div className="text-sm font-medium text-blue-200 mb-2">Scrapeaste:</div>
+                    <div className="text-3xl font-bold text-blue-300 mb-3">{leadsScrapedCount.toLocaleString()}</div>
+                    <div className="text-xs text-blue-300/80 leading-tight">
                       Número de Leads Scrapeados mapeados por el Sistema ARIA SCRAPER
                     </div>
+                  </div>
+                </div>
 
-                    {/* Línea divisoria sutil */}
-                    <div className="w-full h-px bg-gray-200 my-4"></div>
-
-                    {/* Nuevo contador de leads restantes */}
-                    <div className="mt-4">
-                      <div className="text-sm font-medium text-green-600 mb-1">Te quedan:</div>
-                      <div className="text-2xl font-bold text-green-600 mb-2">{remainingLeads.toLocaleString()}</div>
-                      <div className="text-xs text-gray-600 leading-tight">
-                        Número de Leads scrapeables restantes en tu cuenta
-                      </div>
+                {/* Contador de leads restantes */}
+                <div className="bg-blue-800/40 backdrop-blur-sm rounded-xl p-4 border border-blue-700/30">
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-blue-200 mb-2">Te quedan:</div>
+                    <div className="text-3xl font-bold text-green-400 mb-3">{remainingLeads.toLocaleString()}</div>
+                    <div className="text-xs text-blue-300/80 leading-tight">
+                      Número de Leads scrapeables restantes en tu cuenta
                     </div>
                   </div>
                 </div>
               </div>
             )}
+
             {/* Nueva sección de LinkedIn */}
             <div
-              className={`rounded-lg p-3 mt-4 cursor-pointer transition-colors ${
-                activeSection === "linkedin" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              className={`rounded-xl p-4 cursor-pointer transition-colors border ${
+                activeSection === "linkedin"
+                  ? "bg-blue-700/50 text-white border-blue-600/30"
+                  : "bg-blue-800/30 text-blue-100 hover:bg-blue-700/40 border-blue-700/30"
               }`}
               onClick={() => {
                 setActiveSection("linkedin")
                 setShowLinkedInSection(true)
-                setShowLeadsDropdown(false) // Cerrar el dropdown de leads
+                setShowLeadsDropdown(false)
               }}
             >
-              <div className="flex items-center gap-2 font-semibold">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 font-medium">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
-                <span>Envío de Conexion por LinkedIn</span>
+                <span>Envío de Conexión por LinkedIn</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Logout Button - Bottom of Sidebar */}
-        <div className="p-4 border-t border-gray-200 mt-auto">
+        <div className="p-6 border-t border-blue-700/50 mt-auto">
           <Button
             variant="outline"
             size="sm"
@@ -734,7 +737,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                 onLogout()
               }
             }}
-            className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 bg-transparent transition-colors"
+            className="w-full text-red-300 border-red-400/30 hover:bg-red-500/20 hover:border-red-400 bg-transparent transition-colors font-medium"
           >
             Cerrar Sesión
           </Button>
