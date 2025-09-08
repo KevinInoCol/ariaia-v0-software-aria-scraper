@@ -762,49 +762,50 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       <div className="flex-1 bg-white overflow-y-auto">
         {activeSection === "linkedin" ? (
           /* Contenido de LinkedIn */
-          <div className="p-8">
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-2">
+
+          <div className="p-12 max-w-[1600px] mx-auto">
+            <div className="mb-12">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="w-2 h-8 bg-gradient-to-b from-blue-600 to-blue-800 rounded-full"></div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                   Envío de Conexión por LinkedIn
                 </h1>
               </div>
-              <p className="text-gray-600 text-sm ml-5 font-medium">
+              <p className="text-gray-600 text-base ml-5 font-medium">
                 Automatiza el envío de solicitudes de conexión en LinkedIn
               </p>
             </div>
 
-            {/* Formulario de credenciales de LinkedIn */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl">
+            {/* Grid principal con mejor spacing */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 mb-16">
               {/* Columna Izquierda - Credenciales */}
-              <div className="space-y-6">
-                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Credenciales de LinkedIn</h2>
+              <div className="space-y-8">
+                <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Credenciales de LinkedIn</h2>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {/* Campo Username */}
                     <div>
-                      <Label htmlFor="linkedin-username" className="text-sm font-medium text-gray-700 mb-2 block">
+                      <Label htmlFor="linkedin-username" className="text-sm font-medium text-gray-700 mb-3 block">
                         Username de LinkedIn
                       </Label>
                       <Input
                         id="linkedin-username"
                         type="text"
                         placeholder="tu-email@ejemplo.com"
-                        className="w-full"
+                        className="w-full h-12 text-base"
                         value={linkedinUsername}
                         onChange={(e) => setLinkedinUsername(e.target.value)}
                         disabled={isLinkedinLoading}
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 mt-2">
                         Ingresa el email o username que usas para iniciar sesión en LinkedIn
                       </p>
                     </div>
 
                     {/* Campo Password */}
                     <div>
-                      <Label htmlFor="linkedin-password" className="text-sm font-medium text-gray-700 mb-2 block">
+                      <Label htmlFor="linkedin-password" className="text-sm font-medium text-gray-700 mb-3 block">
                         Password de LinkedIn
                       </Label>
                       <div className="relative">
@@ -812,35 +813,35 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                           id="linkedin-password"
                           type={showLinkedinPassword ? "text" : "password"}
                           placeholder="Ingresa tu contraseña"
-                          className="w-full pr-10"
+                          className="w-full h-12 text-base pr-12"
                           value={linkedinPassword}
                           onChange={(e) => setLinkedinPassword(e.target.value)}
                           disabled={isLinkedinLoading}
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          className="absolute inset-y-0 right-0 pr-4 flex items-center"
                           onClick={() => setShowLinkedinPassword(!showLinkedinPassword)}
                           disabled={isLinkedinLoading}
                         >
                           {showLinkedinPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                            <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                           ) : (
-                            <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                            <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                           )}
                         </button>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 mt-2">
                         Tu contraseña será encriptada y almacenada de forma segura
                       </p>
                     </div>
                   </div>
 
                   {/* Nota de seguridad */}
-                  <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mt-4">
-                    <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="text-xs text-blue-800">
-                      <p className="font-medium mb-1">Información de Seguridad</p>
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg mt-6">
+                    <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-2">Información de Seguridad</p>
                       <p>
                         Tus credenciales de LinkedIn son almacenadas de forma segura y encriptada. Solo se utilizan para
                         automatizar el envío de conexiones según tu configuración.
@@ -850,21 +851,21 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
                   {/* Mensajes de error y éxito */}
                   {linkedinError && (
-                    <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
+                    <div className="text-red-600 text-sm bg-red-50 p-4 rounded-lg border border-red-200 mt-4">
                       {linkedinError}
                     </div>
                   )}
 
                   {linkedinSuccess && (
-                    <div className="text-green-600 text-sm bg-green-50 p-3 rounded border border-green-200">
+                    <div className="text-green-600 text-sm bg-green-50 p-4 rounded-lg border border-green-200 mt-4">
                       {linkedinSuccess}
                     </div>
                   )}
 
                   {/* Botón de guardar credenciales */}
-                  <div className="mt-6">
+                  <div className="mt-8">
                     <Button
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 disabled:opacity-50"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-base font-medium disabled:opacity-50"
                       onClick={handleSaveLinkedinCredentials}
                       disabled={isLinkedinLoading || !linkedinUsername.trim() || !linkedinPassword.trim()}
                     >
@@ -875,23 +876,23 @@ export default function Component({ onLogout }: BusinessSearchProps) {
               </div>
 
               {/* Columna Derecha - Conexión Automática */}
-              <div className="space-y-6">
-                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="space-y-8">
+                <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">
                     Conexión automática por medio de LinkedIn
                   </h2>
 
                   {/* Estadísticas de leads con LinkedIn */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">Leads con LinkedIn disponibles</h3>
-                        <p className="text-sm text-gray-600">
+                        <h3 className="font-semibold text-gray-900 text-lg">Leads con LinkedIn disponibles</h3>
+                        <p className="text-sm text-gray-600 mt-1">
                           {scrapingResults.length > 0
                             ? `${scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length} de ${scrapingResults.length} leads tienen perfil de LinkedIn`
                             : "Realiza un scraping primero para ver los leads disponibles"}
@@ -901,34 +902,34 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
                     {scrapingResults.length > 0 && (
                       <div className="grid grid-cols-2 gap-4 text-center">
-                        <div className="bg-white rounded-lg p-3 border border-blue-100">
-                          <div className="text-2xl font-bold text-blue-600">
+                        <div className="bg-white rounded-lg p-4 border border-blue-100">
+                          <div className="text-3xl font-bold text-blue-600 mb-1">
                             {scrapingResults.filter((lead) => lead.linkedinProfile).length}
                           </div>
-                          <div className="text-xs text-gray-600">LinkedIn Personal</div>
+                          <div className="text-sm text-gray-600">LinkedIn Personal</div>
                         </div>
-                        <div className="bg-white rounded-lg p-3 border border-blue-100">
-                          <div className="text-2xl font-bold text-purple-600">
+                        <div className="bg-white rounded-lg p-4 border border-blue-100">
+                          <div className="text-3xl font-bold text-purple-600 mb-1">
                             {scrapingResults.filter((lead) => lead.companyLinkedin).length}
                           </div>
-                          <div className="text-xs text-gray-600">LinkedIn Empresa</div>
+                          <div className="text-sm text-gray-600">LinkedIn Empresa</div>
                         </div>
                       </div>
                     )}
                   </div>
 
                   {/* Descripción del proceso */}
-                  <div className="space-y-4 mb-6">
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                  <div className="space-y-6 mb-8">
+                    <p className="text-base text-gray-600 leading-relaxed">
                       Esta función enviará automáticamente invitaciones de conexión a todos los leads que tengan
                       perfiles de LinkedIn disponibles.
                     </p>
 
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                      <div className="flex items-start gap-2">
-                        <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <div className="text-xs text-amber-800">
-                          <p className="font-medium mb-1">Requisitos importantes:</p>
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-5">
+                      <div className="flex items-start gap-3">
+                        <Info className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-amber-800">
+                          <p className="font-medium mb-2">Requisitos importantes:</p>
                           <ul className="space-y-1 list-disc list-inside">
                             <li>Debes haber guardado tus credenciales de LinkedIn</li>
                             <li>Tener leads scrapeados con perfiles de LinkedIn</li>
@@ -942,7 +943,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                   {/* Botón principal de envío */}
                   <div className="text-center">
                     <Button
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={
                         scrapingResults.length === 0 ||
                         scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length === 0 ||
@@ -966,132 +967,42 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                         )
                       }}
                     >
-                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                       </svg>
                       Iniciar Envío de Conexiones por LinkedIn
                     </Button>
 
                     {/* Mensaje de estado del botón */}
-                    {scrapingResults.length === 0 && (
-                      <p className="text-xs text-gray-500 mt-2">Primero realiza un scraping para obtener leads</p>
-                    )}
-                    {scrapingResults.length > 0 &&
-                      scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length === 0 && (
-                        <p className="text-xs text-gray-500 mt-2">No hay leads con perfiles de LinkedIn disponibles</p>
-                      )}
-                    {!linkedinSuccess &&
-                      scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length > 0 && (
-                        <p className="text-xs text-gray-500 mt-2">Guarda tus credenciales de LinkedIn primero</p>
-                      )}
+                    <div className="mt-4 text-sm text-gray-500">
+                      {scrapingResults.length === 0 && <p>Primero realiza un scraping para obtener leads</p>}
+                      {scrapingResults.length > 0 &&
+                        scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length === 0 && (
+                          <p>No hay leads con perfiles de LinkedIn disponibles</p>
+                        )}
+                      {!linkedinSuccess &&
+                        scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length > 0 && (
+                          <p>Guarda tus credenciales de LinkedIn primero</p>
+                        )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Sección adicional para futuras funcionalidades - Mover debajo del grid */}
-            <div className="bg-gray-50 rounded-lg p-6 text-center mt-8">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+            {/* Sección adicional para futuras funcionalidades */}
+            <div className="bg-gray-50 rounded-xl p-8 text-center">
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Automatización Avanzada</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Automatización Avanzada</h3>
+              <p className="text-gray-600 text-base max-w-2xl mx-auto">
                 Próximamente podrás configurar mensajes personalizados, horarios de envío y seguimiento automático de
                 conexiones.
               </p>
             </div>
-
-            {/* Modal informativo de LinkedIn */}
-            {showLinkedinModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-2xl p-8 max-w-lg mx-4 text-center shadow-2xl">
-                  {/* Icono de LinkedIn */}
-                  <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                    </svg>
-                  </div>
-
-                  {/* Título */}
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">¡Credenciales Guardadas!</h2>
-
-                  {/* Mensaje principal */}
-                  <div className="text-left bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-blue-900 font-semibold mb-3">Importante: Revisa tus notificaciones</p>
-                        <p className="text-blue-800 text-sm leading-relaxed mb-4">
-                          Revisa las <strong>notificaciones de tu LinkedIn</strong> o de tu{" "}
-                          <strong>teléfono móvil</strong>, para que aceptes el permiso de que te estás logueando por
-                          medio de LinkedIn en <strong>ARIA Scraper</strong>.
-                        </p>
-                        <p className="text-blue-800 text-sm leading-relaxed">
-                          Este proceso es <strong>seguro</strong> ya que solo te estás logueando con tu LinkedIn en
-                          nuestra plataforma. Por lo que tus datos están <strong>encriptados y seguros</strong>.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Iconos informativos */}
-                  <div className="flex justify-center gap-6 mb-6">
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-xs text-gray-600 font-medium">Datos Seguros</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 17h5l-5 5v-5zM4 19h5v-5H4v5zM13 3L4 14h5v5l9-11h-5V3z"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-xs text-gray-600 font-medium">Proceso Rápido</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                        </svg>
-                      </div>
-                      <p className="text-xs text-gray-600 font-medium">LinkedIn Oficial</p>
-                    </div>
-                  </div>
-
-                  {/* Botón */}
-                  <Button
-                    onClick={() => setShowLinkedinModal(false)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-base"
-                  >
-                    Entendido
-                  </Button>
-                </div>
-              </div>
-            )}
           </div>
         ) : (
           /* Contenido original de Form Section */
