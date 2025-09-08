@@ -361,7 +361,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       console.log("Enviando datos a usuarios_scraper:", scrapingData)
       console.log("Email del usuario (usuarios_scraper):", userEmail)
 
-      const response = await fetch("https://software-aria-software-scraper.0ogkj4.easypanel.host/start-scraping", {
+      const response = await fetch("https://kevin-inofuente-ai-developer.ngrok.app/start-scraping", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -428,7 +428,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Función para consultar el estado del trabajo
       const pollJobStatus = async () => {
         try {
-          const jobResponse = await fetch(`https://software-aria-software-scraper.0ogkj4.easypanel.host/job/${jobId}`)
+          const jobResponse = await fetch(`https://kevin-inofuente-ai-developer.ngrok.app/job/${jobId}`)
 
           if (!jobResponse.ok) {
             console.error("Error consultando estado del trabajo:", jobResponse.status, jobResponse.statusText)
@@ -1279,7 +1279,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                             console.log("Enviando datos para análisis de modelo de negocio:", businessModelData)
 
                             const response = await fetch(
-                              "https://software-aria-software-scraper.0ogkj4.easypanel.host/analyze-business-model",
+                              "https://kevin-inofuente-ai-developer.ngrok.app/analyze-business-model",
                               {
                                 method: "POST",
                                 headers: {
