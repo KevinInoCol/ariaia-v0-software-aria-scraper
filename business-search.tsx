@@ -776,336 +776,231 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             </div>
 
             {/* Formulario de credenciales de LinkedIn */}
-            <div className="max-w-2xl space-y-6">
-              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Credenciales de LinkedIn</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl">
+              {/* Columna Izquierda - Credenciales */}
+              <div className="space-y-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Credenciales de LinkedIn</h2>
 
-                <div className="space-y-4">
-                  {/* Campo Username */}
-                  <div>
-                    <Label htmlFor="linkedin-username" className="text-sm font-medium text-gray-700 mb-2 block">
-                      Username de LinkedIn
-                    </Label>
-                    <Input
-                      id="linkedin-username"
-                      type="text"
-                      placeholder="tu-email@ejemplo.com"
-                      className="w-full"
-                      value={linkedinUsername}
-                      onChange={(e) => setLinkedinUsername(e.target.value)}
-                      disabled={isLinkedinLoading}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Ingresa el email o username que usas para iniciar sesión en LinkedIn
-                    </p>
-                  </div>
-
-                  {/* Campo Password */}
-                  <div>
-                    <Label htmlFor="linkedin-password" className="text-sm font-medium text-gray-700 mb-2 block">
-                      Password de LinkedIn
-                    </Label>
-                    <div className="relative">
+                  <div className="space-y-4">
+                    {/* Campo Username */}
+                    <div>
+                      <Label htmlFor="linkedin-username" className="text-sm font-medium text-gray-700 mb-2 block">
+                        Username de LinkedIn
+                      </Label>
                       <Input
-                        id="linkedin-password"
-                        type={showLinkedinPassword ? "text" : "password"}
-                        placeholder="Ingresa tu contraseña"
-                        className="w-full pr-10"
-                        value={linkedinPassword}
-                        onChange={(e) => setLinkedinPassword(e.target.value)}
+                        id="linkedin-username"
+                        type="text"
+                        placeholder="tu-email@ejemplo.com"
+                        className="w-full"
+                        value={linkedinUsername}
+                        onChange={(e) => setLinkedinUsername(e.target.value)}
                         disabled={isLinkedinLoading}
                       />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowLinkedinPassword(!showLinkedinPassword)}
-                        disabled={isLinkedinLoading}
-                      >
-                        {showLinkedinPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                        )}
-                      </button>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Ingresa el email o username que usas para iniciar sesión en LinkedIn
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Tu contraseña será encriptada y almacenada de forma segura
-                    </p>
+
+                    {/* Campo Password */}
+                    <div>
+                      <Label htmlFor="linkedin-password" className="text-sm font-medium text-gray-700 mb-2 block">
+                        Password de LinkedIn
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="linkedin-password"
+                          type={showLinkedinPassword ? "text" : "password"}
+                          placeholder="Ingresa tu contraseña"
+                          className="w-full pr-10"
+                          value={linkedinPassword}
+                          onChange={(e) => setLinkedinPassword(e.target.value)}
+                          disabled={isLinkedinLoading}
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          onClick={() => setShowLinkedinPassword(!showLinkedinPassword)}
+                          disabled={isLinkedinLoading}
+                        >
+                          {showLinkedinPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                          )}
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Tu contraseña será encriptada y almacenada de forma segura
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Nota de seguridad */}
-                <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mt-4">
-                  <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-blue-800">
-                    <p className="font-medium mb-1">Información de Seguridad</p>
-                    <p>
-                      Tus credenciales de LinkedIn son almacenadas de forma segura y encriptada. Solo se utilizan para
-                      automatizar el envío de conexiones según tu configuración.
-                    </p>
+                  {/* Nota de seguridad */}
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg mt-4">
+                    <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-blue-800">
+                      <p className="font-medium mb-1">Información de Seguridad</p>
+                      <p>
+                        Tus credenciales de LinkedIn son almacenadas de forma segura y encriptada. Solo se utilizan para
+                        automatizar el envío de conexiones según tu configuración.
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Mensajes de error y éxito */}
-                {linkedinError && (
-                  <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
-                    {linkedinError}
-                  </div>
-                )}
+                  {/* Mensajes de error y éxito */}
+                  {linkedinError && (
+                    <div className="text-red-600 text-sm bg-red-50 p-3 rounded border border-red-200">
+                      {linkedinError}
+                    </div>
+                  )}
 
-                {linkedinSuccess && (
-                  <div className="text-green-600 text-sm bg-green-50 p-3 rounded border border-green-200">
-                    {linkedinSuccess}
-                  </div>
-                )}
+                  {linkedinSuccess && (
+                    <div className="text-green-600 text-sm bg-green-50 p-3 rounded border border-green-200">
+                      {linkedinSuccess}
+                    </div>
+                  )}
 
-                {/* Botón de guardar credenciales */}
-                <div className="mt-6">
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 disabled:opacity-50"
-                    onClick={handleSaveLinkedinCredentials}
-                    disabled={isLinkedinLoading || !linkedinUsername.trim() || !linkedinPassword.trim()}
-                  >
-                    {isLinkedinLoading ? "Guardando..." : "Guardar Credenciales"}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Sección adicional para futuras funcionalidades */}
-              <div className="bg-gray-50 rounded-lg p-6 text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Próximamente</h3>
-                <p className="text-gray-600">
-                  Una vez guardadas las credenciales, podrás configurar campañas automáticas de conexión.
-                </p>
-              </div>
-
-              {/* Tabla de Resultados del Scraping - También disponible en LinkedIn */}
-              {scrapingResults.length > 0 && (
-                <div className="mt-8 w-full space-y-6">
-                  {/* Botón de Descarga CSV */}
-                  <div className="flex justify-center mb-6">
+                  {/* Botón de guardar credenciales */}
+                  <div className="mt-6">
                     <Button
-                      onClick={downloadCSV}
-                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 disabled:opacity-50"
+                      onClick={handleSaveLinkedinCredentials}
+                      disabled={isLinkedinLoading || !linkedinUsername.trim() || !linkedinPassword.trim()}
                     >
-                      📥 Descargar CSV de la Tabla de Leads Scrapeados hacia tu computador
+                      {isLinkedinLoading ? "Guardando..." : "Guardar Credenciales"}
                     </Button>
                   </div>
+                </div>
+              </div>
 
+              {/* Columna Derecha - Conexión Automática */}
+              <div className="space-y-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                    Leads Disponibles para LinkedIn ({scrapingResults.length} encontrados)
+                    Conexión automática por medio de LinkedIn
                   </h2>
 
-                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          {/* Fila de agrupación superior */}
-                          <tr>
-                            {/* Datos Básicos Extraídos - Azul */}
-                            <th
-                              colSpan={8}
-                              className="px-3 py-2 text-center text-sm font-semibold text-blue-700 bg-blue-50 border-b border-blue-200"
-                            >
-                              📊 Datos Básicos Extraídos
-                            </th>
-                            {getEmails && (
-                              <>
-                                {/* Información Premium del Contacto (Persona) - Verde */}
-                                <th
-                                  colSpan={6}
-                                  className="px-3 py-2 text-center text-sm font-semibold text-green-700 bg-green-50 border-b border-green-200"
-                                >
-                                  👤 Información Premium del Contacto (Persona)
-                                </th>
-                                {/* Información Premium de la Empresa - Púrpura */}
-                                <th
-                                  colSpan={7}
-                                  className="px-3 py-2 text-center text-sm font-semibold text-purple-700 bg-purple-50 border-b border-purple-200"
-                                >
-                                  🏢 Información Premium de la Empresa
-                                </th>
-                              </>
-                            )}
-                            {scrapingResults.length > 0 && (
-                              <th
-                                colSpan={1}
-                                className="px-3 py-2 text-center text-sm font-semibold text-orange-700 bg-orange-50 border-b border-orange-200"
-                              >
-                                🏪 Modelo de Negocio
-                              </th>
-                            )}
-                          </tr>
-                          {/* Fila de headers de columnas */}
-                          <tr>
-                            {/* Datos Básicos */}
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Nombre del Lugar
-                            </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Categoría
-                            </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Dirección
-                            </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Barrio
-                            </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Calle
-                            </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Sitio Web
-                            </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Teléfono
-                            </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                              Teléfono (Sin formato)
-                            </th>
-                            {getEmails && (
-                              <>
-                                {/* Información Premium del Contacto (Persona) */}
-                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
-                                  Nombre Completo
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
-                                  Cargo
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
-                                  Email
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
-                                  Emails Adicionales
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
-                                  LinkedIn Personal
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-green-600 uppercase tracking-wider whitespace-nowrap">
-                                  Teléfono Móvil
-                                </th>
-                                {/* Información Premium de la Empresa */}
-                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
-                                  Nombre Empresa
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
-                                  Sitio Web Empresa
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
-                                  LinkedIn Empresa
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
-                                  Teléfono Empresa
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
-                                  Tamaño Empresa
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
-                                  Industria
-                                </th>
-                                <th className="px-3 py-3 text-left text-xs font-medium text-purple-600 uppercase tracking-wider whitespace-nowrap">
-                                  Ciudad
-                                </th>
-                              </>
-                            )}
-                            {scrapingResults.length > 0 && (
-                              <th className="px-3 py-3 text-left text-xs font-medium text-orange-600 uppercase tracking-wider whitespace-nowrap">
-                                Modelo de Negocio
-                              </th>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {scrapingResults.map((result, index) => (
-                            <tr key={index} className="hover:bg-gray-50">
-                              {/* Datos Básicos */}
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.title || "-"}
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.categoryName || "-"}
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.address || "-"}
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.neighborhood || "-"}
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.street || "-"}
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.website || "-"}
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.phone || "-"}
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.phoneUnformatted || "-"}
-                              </td>
-                              {getEmails && (
-                                <>
-                                  {/* Información Premium del Contacto (Persona) */}
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
-                                    {result.fullName || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
-                                    {result.jobTitle || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
-                                    {result.email || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
-                                    {result.emails && Array.isArray(result.emails) ? result.emails.join("; ") : "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
-                                    {result.linkedinProfile || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-green-600">
-                                    {result.mobileNumber || "-"}
-                                  </td>
-                                  {/* Información Premium de la Empresa */}
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
-                                    {result.companyName || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
-                                    {result.companyWebsite || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
-                                    {result.companyLinkedin || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
-                                    {result.companyPhoneNumber || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
-                                    {result.companySize || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
-                                    {result.industry || "-"}
-                                  </td>
-                                  <td className="px-3 py-4 whitespace-nowrap text-sm text-purple-600">
-                                    {result.city || "-"}
-                                  </td>
-                                </>
-                              )}
-                              {scrapingResults.length > 0 && (
-                                <td className="px-3 py-4 whitespace-nowrap text-sm text-orange-600">
-                                  {result.businessModel || "-"}
-                                </td>
-                              )}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                  {/* Estadísticas de leads con LinkedIn */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Leads con LinkedIn disponibles</h3>
+                        <p className="text-sm text-gray-600">
+                          {scrapingResults.length > 0
+                            ? `${scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length} de ${scrapingResults.length} leads tienen perfil de LinkedIn`
+                            : "Realiza un scraping primero para ver los leads disponibles"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {scrapingResults.length > 0 && (
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div className="bg-white rounded-lg p-3 border border-blue-100">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {scrapingResults.filter((lead) => lead.linkedinProfile).length}
+                          </div>
+                          <div className="text-xs text-gray-600">LinkedIn Personal</div>
+                        </div>
+                        <div className="bg-white rounded-lg p-3 border border-blue-100">
+                          <div className="text-2xl font-bold text-purple-600">
+                            {scrapingResults.filter((lead) => lead.companyLinkedin).length}
+                          </div>
+                          <div className="text-xs text-gray-600">LinkedIn Empresa</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Descripción del proceso */}
+                  <div className="space-y-4 mb-6">
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      Esta función enviará automáticamente invitaciones de conexión a todos los leads que tengan
+                      perfiles de LinkedIn disponibles.
+                    </p>
+
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-xs text-amber-800">
+                          <p className="font-medium mb-1">Requisitos importantes:</p>
+                          <ul className="space-y-1 list-disc list-inside">
+                            <li>Debes haber guardado tus credenciales de LinkedIn</li>
+                            <li>Tener leads scrapeados con perfiles de LinkedIn</li>
+                            <li>El proceso puede tomar varios minutos dependiendo de la cantidad</li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Botón principal de envío */}
+                  <div className="text-center">
+                    <Button
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      disabled={
+                        scrapingResults.length === 0 ||
+                        scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length === 0 ||
+                        !linkedinSuccess
+                      }
+                      onClick={async () => {
+                        // TODO: Implementar la lógica de envío automático
+                        // El usuario proporcionará el endpoint del backend más tarde
+                        console.log("Iniciando envío automático de conexiones LinkedIn...")
+
+                        // Filtrar leads con LinkedIn
+                        const leadsWithLinkedIn = scrapingResults.filter(
+                          (lead) => lead.linkedinProfile || lead.companyLinkedin,
+                        )
+
+                        console.log(`Enviando conexiones a ${leadsWithLinkedIn.length} leads con LinkedIn`)
+
+                        // Placeholder para la implementación futura
+                        alert(
+                          `Se enviarán conexiones a ${leadsWithLinkedIn.length} leads con LinkedIn. Funcionalidad en desarrollo.`,
+                        )
+                      }}
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                      </svg>
+                      Iniciar Envío de Conexiones por LinkedIn
+                    </Button>
+
+                    {/* Mensaje de estado del botón */}
+                    {scrapingResults.length === 0 && (
+                      <p className="text-xs text-gray-500 mt-2">Primero realiza un scraping para obtener leads</p>
+                    )}
+                    {scrapingResults.length > 0 &&
+                      scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length === 0 && (
+                        <p className="text-xs text-gray-500 mt-2">No hay leads con perfiles de LinkedIn disponibles</p>
+                      )}
+                    {!linkedinSuccess &&
+                      scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length > 0 && (
+                        <p className="text-xs text-gray-500 mt-2">Guarda tus credenciales de LinkedIn primero</p>
+                      )}
+                  </div>
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* Sección adicional para futuras funcionalidades - Mover debajo del grid */}
+            <div className="bg-gray-50 rounded-lg p-6 text-center mt-8">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Automatización Avanzada</h3>
+              <p className="text-gray-600">
+                Próximamente podrás configurar mensajes personalizados, horarios de envío y seguimiento automático de
+                conexiones.
+              </p>
             </div>
 
             {/* Modal informativo de LinkedIn */}
