@@ -487,11 +487,6 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             }
 
             // Detener contador de tiempo inmediatamente
-            if (timerInterval) {
-              clearInterval(timerInterval)
-              setTimerInterval(null)
-            }
-
             return true // Detener polling
           } else if (jobData.status === "FAILED" || jobData.status === "ERROR") {
             // Trabajo falló
@@ -514,11 +509,13 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         if (shouldStop) {
           clearInterval(pollInterval)
           setIsLoading(false)
-          // Asegurar que el contador de tiempo se detenga
-          if (timerInterval) {
-            clearInterval(timerInterval)
-            setTimerInterval(null)
-          }
+          // Detener contador de tiempo inmediatamente usando la referencia actual
+          setTimerInterval((currentTimerInterval) => {
+            if (currentTimerInterval) {
+              clearInterval(currentTimerInterval)
+            }
+            return null
+          })
         }
       }, 4000)
 
