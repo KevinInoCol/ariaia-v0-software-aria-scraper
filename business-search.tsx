@@ -140,6 +140,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   // Add this new state after the existing states
   const [currentJobId, setCurrentJobId] = useState<string | null>(null)
 
+  // Add a new state for the polling interval
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null)
+
   // Cargar el contador de leads scrapeados al montar el componente
   useEffect(() => {
     const loadUserData = async () => {
@@ -189,8 +192,12 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       if (timerInterval) {
         clearInterval(timerInterval)
       }
+      // Cleanup the polling interval as well
+      if (pollInterval) {
+        clearInterval(pollInterval)
+      }
     }
-  }, [timerInterval])
+  }, [timerInterval, pollInterval])
 
   const downloadCSV = () => {
     if (scrapingResults.length === 0) return
@@ -520,10 +527,13 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       }
 
       // Iniciar polling cada 4 segundos
-      const pollInterval = setInterval(async () => {
+      const pollIntervalId = setInterval(async () => {
         const shouldStop = await pollJobStatus()
         if (shouldStop) {
-          clearInterval(pollInterval)
+          if (pollIntervalId) {
+            clearInterval(pollIntervalId)
+            setPollInterval(null)
+          }
           setIsLoading(false)
           // Detener contador de tiempo inmediatamente usando la referencia actual
           setTimerInterval((currentTimerInterval) => {
@@ -535,9 +545,15 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         }
       }, 4000)
 
+      // Guardar la referencia del interval en el estado
+      setPollInterval(pollIntervalId)
+
       // Timeout de seguridad (10 minutos máximo)
       setTimeout(() => {
-        clearInterval(pollInterval)
+        if (pollIntervalId) {
+          clearInterval(pollIntervalId)
+          setPollInterval(null)
+        }
         if (isLoading) {
           setIsLoading(false)
           // Detener contador de tiempo
@@ -1539,23 +1555,32 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                               const cancelData = await cancelResponse.json()
                               console.log("Trabajo cancelado exitosamente:", cancelData)
 
-                              // Detener el scraping
+                              // 1. DETENER INMEDIATAMENTE EL POLLING
+                              if (pollInterval) {
+                                clearInterval(pollInterval)
+                                setPollInterval(null)
+                              }
+
+                              // 2. ACTUALIZAR ESTADOS INMEDIATAMENTE
                               setIsLoading(false)
                               setShowCancelModal(false)
                               setSuccess("")
                               setError("")
 
-                              // Mostrar mensaje de cancelación exitosa
-                              setSuccess(`✅ ${cancelData.message || "Scraping cancelado exitosamente"}`)
+                              // 3. MOSTRAR ESTADO "CANCELADO"
+                              setSuccess(`🚫 CANCELADO: ${cancelData.message || "Scraping cancelado exitosamente"}`)
 
-                              // Detener contador de tiempo
+                              // 4. DETENER CONTADOR DE TIEMPO
                               if (timerInterval) {
                                 clearInterval(timerInterval)
                                 setTimerInterval(null)
                               }
 
-                              // Limpiar jobId
+                              // 5. LIMPIAR JOBID PARA PREVENIR MÁS LLAMADAS
                               setCurrentJobId(null)
+
+                              // 6. LIMPIAR RESULTADOS PARCIALES
+                              setScrapingResults([])
                             } else {
                               // Manejar errores específicos del backend
                               const errorData = await cancelResponse
