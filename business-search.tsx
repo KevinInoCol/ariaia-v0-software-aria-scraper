@@ -550,17 +550,15 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
       // Timeout de seguridad (10 minutos máximo)
       setTimeout(() => {
-        if (pollIntervalId) {
-          clearInterval(pollIntervalId)
-          setPollInterval(null)
-        }
+        // Cambiar esta sección para usar la forma correcta de limpiar el timer
+        setTimerInterval((currentTimerInterval) => {
+          if (currentTimerInterval) {
+            clearInterval(currentTimerInterval)
+          }
+          return null
+        })
         if (isLoading) {
           setIsLoading(false)
-          // Detener contador de tiempo
-          if (timerInterval) {
-            clearInterval(timerInterval)
-            setTimerInterval(null)
-          }
           setError("Timeout: El scraping está tomando más tiempo del esperado. Por favor, intenta nuevamente.")
         }
       }, 600000) // 10 minutos
