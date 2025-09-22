@@ -457,12 +457,16 @@ export default function Component({ onLogout }: BusinessSearchProps) {
           const jobData = await jobResponse.json()
           console.log("Estado del trabajo:", jobData)
 
+          // /** rest of code here **/
           if (jobData.status === "COMPLETED") {
             // Trabajo completado, procesar resultados
+            let hasActualResults = false
+
             if (jobData.results && jobData.results.data && Array.isArray(jobData.results.data)) {
               setScrapingResults(jobData.results.data)
               const count = jobData.results.results_count || jobData.results.data.length
               setSuccess(`Scraping completado exitosamente. ${count} resultados encontrados.`)
+              hasActualResults = true
 
               // Actualizar el contador desde la base de datos después del scraping exitoso
               const userDataString = localStorage.getItem("aria_user_data")
@@ -490,6 +494,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             } else if (jobData.results && Array.isArray(jobData.results.results)) {
               setScrapingResults(jobData.results.results)
               setSuccess(`Scraping completado exitosamente. ${jobData.results.results.length} resultados encontrados.`)
+              hasActualResults = true
 
               // Actualizar contadores
               setLeadsScrapedCount((prev) => prev + jobData.results.results.length)
@@ -497,18 +502,27 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             } else if (jobData.results && Array.isArray(jobData.results)) {
               setScrapingResults(jobData.results)
               setSuccess(`Scraping completado exitosamente. ${jobData.results.length} resultados encontrados.`)
+              hasActualResults = true
 
               // Actualizar contadores
               setLeadsScrapedCount((prev) => prev + jobData.results.length)
               setRemainingLeads((prev) => Math.max(0, prev - jobData.results.length))
             } else {
-              setSuccess("Scraping completado exitosamente")
+              // Backend dice "COMPLETED" pero no hay datos reales - seguir esperando
+              console.log("Backend dice COMPLETED pero no hay datos JSON reales, continuando polling...")
+              return false // Continuar polling
             }
 
-            // Detener contador de tiempo inmediatamente
-            // Clear the jobId when job completes
-            setCurrentJobId(null)
-            return true // Detener polling
+            // SOLO detener timer y polling si tenemos datos reales
+            if (hasActualResults) {
+              console.log("✅ Datos JSON reales recibidos, deteniendo timer y polling")
+              // Clear the jobId when job completes
+              setCurrentJobId(null)
+              return true // Detener polling
+            } else {
+              // No hay datos reales, continuar
+              return false
+            }
           } else if (jobData.status === "FAILED" || jobData.status === "ERROR") {
             // Trabajo falló
             setError(`Error en el scraping: ${jobData.message || "Error desconocido"}`)
@@ -518,6 +532,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             console.log("Trabajo aún en progreso, continuando polling...")
             return false // Continuar polling
           }
+          // /** rest of code here **/
         } catch (error) {
           console.error("Error consultando estado del trabajo:", error)
           return false // Continuar polling en caso de error de red
