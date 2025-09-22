@@ -364,7 +364,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       console.log("Enviando datos a usuarios_scraper:", scrapingData)
       console.log("Email del usuario (usuarios_scraper):", userEmail)
 
-      const response = await fetch("https://kevin-inofuente-ai-developer.ngrok.app/start-scraping", {
+      // Actualizar el endpoint de producción
+      const response = await fetch("https://software-aria-software-scraper.0ogkj4.easypanel.host/start-scraping", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -431,7 +432,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Función para consultar el estado del trabajo
       const pollJobStatus = async () => {
         try {
-          const jobResponse = await fetch(`https://kevin-inofuente-ai-developer.ngrok.app/job/${jobId}`)
+          // Actualizar el endpoint para consultar el estado del trabajo
+          const jobResponse = await fetch(`https://software-aria-software-scraper.0ogkj4.easypanel.host/job/${jobId}`)
 
           if (!jobResponse.ok) {
             console.error("Error consultando estado del trabajo:", jobResponse.status, jobResponse.statusText)
@@ -1051,7 +1053,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
               </div>
 
               {/* El resto del contenido del formulario se mantiene exactamente igual */}
-              {/* Segunda fila: Checkbox + Nota amarilla a la izquierda, High Level + Mapa a la derecha */}
+              {/* Segunda fila: Checkbox y nota amarilla a la izquierda, High Level + Mapa a la derecha */}
               <div className="flex gap-8 items-start">
                 {/* Lado izquierdo: Checkbox y nota amarilla */}
                 <div className="flex-1 space-y-3">
@@ -1182,8 +1184,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
                             console.log("Enviando datos para análisis de modelo de negocio:", businessModelData)
 
+                            // Actualizar el endpoint para el análisis de modelo de negocio
                             const response = await fetch(
-                              "https://kevin-inofuente-ai-developer.ngrok.app/analyze-business-model",
+                              "https://software-aria-software-scraper.0ogkj4.easypanel.host/analyze-business-model",
                               {
                                 method: "POST",
                                 headers: {
