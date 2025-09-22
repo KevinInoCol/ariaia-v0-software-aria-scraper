@@ -143,7 +143,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   // Add a new state for the polling interval
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null)
 
-  // Cargar el contador de leads scrapeados al montar el componente
+  // Cargar el contador de leads scrapeados al<bos> the component
   useEffect(() => {
     const loadUserData = async () => {
       const userDataString = localStorage.getItem("aria_user_data")
@@ -894,7 +894,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                   {/* Botón de guardar credenciales */}
                   <div className="mt-8">
                     <Button
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-base font-medium disabled:opacity-50"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-base font-medium disabled:opacity-50 transition-all duration-150 hover:scale-105 active:scale-95 active:bg-blue-800 transform"
                       onClick={handleSaveLinkedinCredentials}
                       disabled={isLinkedinLoading || !linkedinUsername.trim() || !linkedinPassword.trim()}
                     >
@@ -972,7 +972,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                   {/* Botón principal de envío */}
                   <div className="text-center">
                     <Button
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={
                         scrapingResults.length === 0 ||
                         scrapingResults.filter((lead) => lead.linkedinProfile || lead.companyLinkedin).length === 0 ||
@@ -1115,7 +1115,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                   {/* Replace the "Iniciar Scraping" button section with this updated version that includes both buttons: */}
                   <div className="flex gap-3 items-center">
                     <Button
-                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-8"
+                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-8 transition-all duration-150 hover:scale-105 active:scale-95 active:bg-blue-800 transform"
                       onClick={handleStartScraping}
                       disabled={isLoading}
                     >
@@ -1124,7 +1124,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
                     {isLoading && (
                       <Button
-                        className="bg-red-600 hover:bg-red-700 text-white px-8"
+                        className="bg-red-600 hover:bg-red-700 text-white px-8 transition-all duration-150 hover:scale-105 active:scale-95 active:bg-red-800 transform"
                         onClick={() => setShowCancelModal(true)}
                       >
                         Cancelar Scrapeo
@@ -1181,7 +1181,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                       </p>
 
                       <Button
-                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 px-8"
+                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 px-8 transition-all duration-150 hover:scale-105 active:scale-95 active:bg-purple-800 transform"
                         onClick={async () => {
                           setIsBusinessModelLoading(true)
                           setBusinessModelError("")
@@ -1368,7 +1368,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                     </div>
 
                     <Button
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 hover:scale-105 active:scale-95 active:bg-green-800 transform"
                       disabled={!ghlApiToken.trim() || !ghlLabel.trim() || scrapingResults.length === 0}
                       title={
                         !ghlApiToken.trim()
@@ -1616,50 +1616,6 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                         Sí, Cancelar Scraping
                       </Button>
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {error && error === "LOCATION_FORMAT_ERROR" && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                  <div className="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
-                    {/* Icono de información - círculo azul con signo de exclamación */}
-                    <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-
-                    {/* Título */}
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Formato de Localización Incorrecto</h2>
-
-                    {/* Mensaje principal */}
-                    <p className="text-lg text-gray-600 mb-4">
-                      La localización debe tener exactamente 3 parámetros separados por comas
-                    </p>
-
-                    {/* Ejemplo */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                      <p className="text-sm font-medium text-blue-800 mb-2">Ejemplo correcto:</p>
-                      <p className="text-base font-semibold text-blue-900">San Isidro, Lima, Perú</p>
-                    </div>
-
-                    {/* Descripción adicional */}
-                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                      Asegúrate de incluir el distrito/barrio, la ciudad y el país, separados por comas.
-                    </p>
-
-                    {/* Botón */}
-                    <Button
-                      onClick={() => setError("")}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-base"
-                    >
-                      Entendido
-                    </Button>
                   </div>
                 </div>
               )}
