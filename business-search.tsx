@@ -134,6 +134,12 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   // Agregar después de los otros estados de LinkedIn
   const [showLinkedinModal, setShowLinkedinModal] = useState(false)
 
+  // Add a new state for the cancel confirmation modal after the existing states:
+  const [showCancelModal, setShowCancelModal] = useState(false)
+
+  // Add this new state after the existing states
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null)
+
   // Cargar el contador de leads scrapeados al montar el componente
   useEffect(() => {
     const loadUserData = async () => {
@@ -424,6 +430,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       const jobId = initialResponse.jobId
       console.log("JobId obtenido:", jobId)
 
+      // Store the jobId in state for cancellation
+      setCurrentJobId(jobId)
+
       // Mostrar mensaje de scraping en progreso
       setSuccess(
         "Scrapeando leads... puede tomar entre 1 a 5 min, dependiendo de la cantidad de leads que vayamos a traer",
@@ -492,6 +501,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             }
 
             // Detener contador de tiempo inmediatamente
+            // Clear the jobId when job completes
+            setCurrentJobId(null)
             return true // Detener polling
           } else if (jobData.status === "FAILED" || jobData.status === "ERROR") {
             // Trabajo falló
@@ -1085,13 +1096,25 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                     </div>
                   </div>
 
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-8 mt-4"
-                    onClick={handleStartScraping}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Iniciando..." : "Iniciar Scraping"}
-                  </Button>
+                  {/* Replace the "Iniciar Scraping" button section with this updated version that includes both buttons: */}
+                  <div className="flex gap-3 items-center">
+                    <Button
+                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-8"
+                      onClick={handleStartScraping}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Iniciando..." : "Iniciar Scraping"}
+                    </Button>
+
+                    {isLoading && (
+                      <Button
+                        className="bg-red-600 hover:bg-red-700 text-white px-8"
+                        onClick={() => setShowCancelModal(true)}
+                      >
+                        Cancelar Scrapeo
+                      </Button>
+                    )}
+                  </div>
 
                   {/* Mensaje de scraping en progreso */}
                   {isLoading && (
@@ -1452,6 +1475,120 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                         className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium text-base"
                       >
                         Recarga de Leads
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Add the cancel confirmation modal right after the existing location format error modal (around line 1200): */}
+              {showCancelModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-2xl p-8 max-w-lg mx-4 text-center shadow-2xl">
+                    {/* Icono de advertencia - círculo rojo con signo de exclamación */}
+                    <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <svg className="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                          fillRule="evenodd"
+                          d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Título */}
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Confirmar Cancelación de Scraping</h2>
+
+                    {/* Mensaje de advertencia */}
+                    <p className="text-base text-gray-700 mb-6 leading-relaxed">
+                      Si se cancela el scraping el costo del scrapeo hasta el momento de todas formas se hará efectivo y
+                      los leads scrapeados se perderán. La única forma de obtener los leads es dejando que el scrapper
+                      termine de hacer su trabajo.
+                    </p>
+
+                    {/* Botones */}
+                    <div className="flex gap-3 justify-center">
+                      <Button
+                        onClick={() => setShowCancelModal(false)}
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-medium text-base"
+                      >
+                        Continuar Scraping
+                      </Button>
+                      <Button
+                        onClick={async () => {
+                          if (!currentJobId) {
+                            setError("No se pudo obtener el ID del trabajo para cancelar")
+                            setShowCancelModal(false)
+                            return
+                          }
+
+                          try {
+                            console.log("Cancelando trabajo con ID:", currentJobId)
+
+                            const cancelResponse = await fetch(
+                              `https://kevin-inofuente-ai-developer.ngrok.app/cancel-job/${currentJobId}`,
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                              },
+                            )
+
+                            if (cancelResponse.ok) {
+                              const cancelData = await cancelResponse.json()
+                              console.log("Trabajo cancelado exitosamente:", cancelData)
+
+                              // Detener el scraping
+                              setIsLoading(false)
+                              setShowCancelModal(false)
+                              setSuccess("")
+                              setError("")
+
+                              // Mostrar mensaje de cancelación exitosa
+                              setSuccess(`✅ ${cancelData.message || "Scraping cancelado exitosamente"}`)
+
+                              // Detener contador de tiempo
+                              if (timerInterval) {
+                                clearInterval(timerInterval)
+                                setTimerInterval(null)
+                              }
+
+                              // Limpiar jobId
+                              setCurrentJobId(null)
+                            } else {
+                              // Manejar errores específicos del backend
+                              const errorData = await cancelResponse
+                                .json()
+                                .catch(() => ({ detail: "Error desconocido" }))
+
+                              let errorMessage = "Error al cancelar el scraping"
+
+                              if (cancelResponse.status === 404) {
+                                errorMessage = "Trabajo no encontrado. Es posible que ya haya terminado."
+                              } else if (cancelResponse.status === 400) {
+                                errorMessage = errorData.detail || "El trabajo no se puede cancelar en su estado actual"
+                              } else if (cancelResponse.status === 500) {
+                                errorMessage = errorData.detail || "Error interno del servidor al cancelar"
+                              } else {
+                                errorMessage =
+                                  errorData.detail || `Error ${cancelResponse.status}: ${cancelResponse.statusText}`
+                              }
+
+                              setError(errorMessage)
+                              setShowCancelModal(false)
+                            }
+                          } catch (err) {
+                            console.error("Error al cancelar el trabajo:", err)
+                            setError(
+                              `Error de conexión al cancelar: ${err instanceof Error ? err.message : "Error desconocido"}`,
+                            )
+                            setShowCancelModal(false)
+                          }
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-medium text-base"
+                      >
+                        Sí, Cancelar Scraping
                       </Button>
                     </div>
                   </div>
