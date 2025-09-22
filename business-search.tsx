@@ -440,10 +440,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Store the jobId in state for cancellation
       setCurrentJobId(jobId)
 
-      // Mostrar mensaje de scraping en progreso
-      setSuccess(
-        "Scrapeando leads... puede tomar entre 1 a 5 min, dependiendo de la cantidad de leads que vayamos a traer",
-      )
+      // Mensaje ya mostrado en el área azul con spinner - no duplicar aquí
+      console.log("Polling iniciado para jobId:", jobId)
 
       // Función para consultar el estado del trabajo
       const pollJobStatus = async () => {
@@ -550,15 +548,19 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
       // Timeout de seguridad (10 minutos máximo)
       setTimeout(() => {
-        // Cambiar esta sección para usar la forma correcta de limpiar el timer
-        setTimerInterval((currentTimerInterval) => {
-          if (currentTimerInterval) {
-            clearInterval(currentTimerInterval)
-          }
-          return null
-        })
+        if (pollIntervalId) {
+          clearInterval(pollIntervalId)
+          setPollInterval(null)
+        }
         if (isLoading) {
           setIsLoading(false)
+          // Detener timer solo en caso de timeout
+          setTimerInterval((currentTimerInterval) => {
+            if (currentTimerInterval) {
+              clearInterval(currentTimerInterval)
+            }
+            return null
+          })
           setError("Timeout: El scraping está tomando más tiempo del esperado. Por favor, intenta nuevamente.")
         }
       }, 600000) // 10 minutos
