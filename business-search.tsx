@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Settings, Search, Info, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -117,6 +117,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   const [linkedinError, setLinkedinError] = useState("")
   const [linkedinSuccess, setLinkedinSuccess] = useState("")
   const [showLinkedinPassword, setShowLinkedinPassword] = useState(false)
+  const [showLinkedinModal, setShowLinkedinModal] = useState(false) // Added this state
 
   // Estados para el Paso 2: Modelo de Negocio
   const [isBusinessModelLoading, setIsBusinessModelLoading] = useState(false)
@@ -131,10 +132,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null)
 
-  // Agregar después de los otros estados de LinkedIn
-  const [showLinkedinModal, setShowLinkedinModal] = useState(false)
-
-  // Add a new state for the cancel confirmation modal after the existing states:
+  // Add this new state after the existing states:
   const [showCancelModal, setShowCancelModal] = useState(false)
 
   // Add this new state after the existing states
@@ -142,6 +140,12 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
   // Add a new state for the polling interval
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null)
+
+  // Add this new ref after the existing states
+  const timerControlRef = useRef<{ shouldStop: boolean; intervalId: NodeJS.Timeout | null }>({
+    shouldStop: false,
+    intervalId: null,
+  })
 
   // Cargar el contador de leads scrapeados al<bos> the component
   useEffect(() => {
@@ -195,6 +199,10 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Cleanup the polling interval as well
       if (pollInterval) {
         clearInterval(pollInterval)
+      }
+      // Cleanup the independent timer using the ref
+      if (timerControlRef.current.intervalId) {
+        clearInterval(timerControlRef.current.intervalId)
       }
     }
   }, [timerInterval, pollInterval])
@@ -319,25 +327,30 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
     setIsLoading(true)
 
-    // 🔥 TIMER 100% INDEPENDIENTE - NO DEPENDE DE NADA MÁS
+    // 🔥 TIMER 100% AISLADO CON useRef - INMUNE A RE-RENDERS
     const startTime = Date.now()
     setScrapingStartTime(startTime)
     setElapsedTime(0)
 
-    // Variable para controlar el timer independientemente
-    let timerShouldStop = false
+    // Reset timer control
+    timerControlRef.current.shouldStop = false
 
-    // Timer que SOLO se detiene cuando timerShouldStop = true
+    // Timer completamente aislado que NO depende de nada más
     const independentTimer = setInterval(() => {
-      if (timerShouldStop) {
+      // Verificar si debe parar usando la referencia
+      if (timerControlRef.current.shouldStop) {
         clearInterval(independentTimer)
+        timerControlRef.current.intervalId = null
         return
       }
+
       const currentTime = Date.now()
       const elapsed = Math.floor((currentTime - startTime) / 1000)
       setElapsedTime(elapsed)
     }, 1000)
 
+    // Guardar referencia del interval
+    timerControlRef.current.intervalId = independentTimer
     setTimerInterval(independentTimer)
 
     setError("")
@@ -369,7 +382,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       if (!userEmail) {
         setError("Error: No se pudo obtener el email del usuario. Por favor, inicia sesión nuevamente.")
         // Detener timer solo en caso de error
-        timerShouldStop = true
+        timerControlRef.current.shouldStop = true
         return
       }
 
@@ -403,7 +416,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         const errorData = await response.json().catch(() => ({ detail: "Error de plan de pago" }))
         setPaymentError(errorData.detail || "Error de plan de pago")
         // Detener timer solo en caso de error
-        timerShouldStop = true
+        timerControlRef.current.shouldStop = true
         return
       }
 
@@ -415,7 +428,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         // Mostrar mensaje de límite alcanzado con el modal bonito
         setError("LIMIT_REACHED")
         // Detener timer solo en caso de error
-        timerShouldStop = true
+        timerControlRef.current.shouldStop = true
         return
       }
 
@@ -426,7 +439,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         console.error("Error 422 - Datos enviados:", scrapingData)
         console.error("Error 422 - Respuesta:", errorData)
         // Detener timer solo en caso de error
-        timerShouldStop = true
+        timerControlRef.current.shouldStop = true
         return
       }
 
@@ -438,7 +451,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         setError(errorMessage)
         console.error("Error HTTP:", response.status, errorData)
         // Detener timer solo en caso de error
-        timerShouldStop = true
+        timerControlRef.current.shouldStop = true
         return
       }
 
@@ -450,7 +463,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       if (!initialResponse || initialResponse.status !== "success" || !initialResponse.jobId) {
         setError("Error: No se pudo obtener el ID del trabajo. Respuesta inválida del servidor.")
         // Detener timer solo en caso de error
-        timerShouldStop = true
+        timerControlRef.current.shouldStop = true
         return
       }
 
@@ -477,7 +490,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
           const jobData = await jobResponse.json()
           console.log("Estado del trabajo:", jobData)
 
-          // ✅ SOLO DETENER CUANDO TENGAMOS DATOS REALES
+          // ✅ SOLO SI TENEMOS DATOS REALES, DETENER TIMER
           if (jobData.status === "COMPLETED") {
             let actualResults = []
 
@@ -494,8 +507,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
             if (actualResults.length > 0) {
               console.log("✅ DATOS REALES RECIBIDOS - DETENIENDO TIMER")
 
-              // 1. DETENER TIMER INMEDIATAMENTE
-              timerShouldStop = true
+              // 1. DETENER TIMER INMEDIATAMENTE usando la referencia
+              timerControlRef.current.shouldStop = true
 
               // 2. PROCESAR RESULTADOS
               setScrapingResults(actualResults)
@@ -536,7 +549,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
           } else if (jobData.status === "FAILED" || jobData.status === "ERROR") {
             // Error - detener todo
             console.log("❌ ERROR EN SCRAPING - DETENIENDO TIMER")
-            timerShouldStop = true
+            timerControlRef.current.shouldStop = true
             setError(`Error en el scraping: ${jobData.message || "Error desconocido"}`)
             setIsLoading(false)
             return true // Detener polling
@@ -569,8 +582,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
           clearInterval(pollIntervalId)
           setPollInterval(null)
         }
-        // DETENER TIMER SOLO EN TIMEOUT
-        timerShouldStop = true
+        // DETENER TIMER SOLO EN TIMEOUT usando referencia
+        timerControlRef.current.shouldStop = true
         if (isLoading) {
           setIsLoading(false)
           setError("Timeout: El scraping está tomando más tiempo del esperado. Por favor, intenta nuevamente.")
@@ -582,8 +595,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         `Error de conexión: ${err instanceof Error ? err.message : "Error desconocido"}. Verifica la URL del webhook y tu conexión.`,
       )
       setIsLoading(false)
-      // Detener timer en caso de error
-      timerShouldStop = true
+      // Detener timer en caso de error usando referencia
+      timerControlRef.current.shouldStop = true
     }
   }
 
@@ -1579,8 +1592,8 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                               // 3. MOSTRAR ESTADO "CANCELADO"
                               setSuccess(`🚫 CANCELADO: ${cancelData.message || "Scraping cancelado exitosamente"}`)
 
-                              // 4. DETENER CONTADOR DE TIEMPO
-                              timerShouldStop = true // En lugar de clearInterval(timerInterval)
+                              // 4. DETENER CONTADOR DE TIEMPO usando referencia
+                              timerControlRef.current.shouldStop = true
 
                               // 5. LIMPIAR JOBID PARA PREVENIR MÁS LLAMADAS
                               setCurrentJobId(null)
