@@ -319,18 +319,18 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
     setIsLoading(true)
 
-    // Iniciar contador de tiempo
+    // 🔥 TIMER COMPLETAMENTE INDEPENDIENTE - CORRE EN PARALELO
     const startTime = Date.now()
     setScrapingStartTime(startTime)
     setElapsedTime(0)
 
-    // Iniciar el intervalo del contador
-    const interval = setInterval(() => {
+    // Timer independiente que SOLO se detiene cuando tenemos resultados reales
+    const independentTimer = setInterval(() => {
       const currentTime = Date.now()
       const elapsed = Math.floor((currentTime - startTime) / 1000)
       setElapsedTime(elapsed)
     }, 1000)
-    setTimerInterval(interval)
+    setTimerInterval(independentTimer)
 
     setError("")
     setSuccess("")
@@ -360,6 +360,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Validar que tenemos el email
       if (!userEmail) {
         setError("Error: No se pudo obtener el email del usuario. Por favor, inicia sesión nuevamente.")
+        // Detener timer solo en caso de error
+        clearInterval(independentTimer)
+        setTimerInterval(null)
         return
       }
 
@@ -392,6 +395,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       if (response.status === 402) {
         const errorData = await response.json().catch(() => ({ detail: "Error de plan de pago" }))
         setPaymentError(errorData.detail || "Error de plan de pago")
+        // Detener timer solo en caso de error
+        clearInterval(independentTimer)
+        setTimerInterval(null)
         return
       }
 
@@ -402,6 +408,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         setPaymentError("")
         // Mostrar mensaje de límite alcanzado con el modal bonito
         setError("LIMIT_REACHED")
+        // Detener timer solo en caso de error
+        clearInterval(independentTimer)
+        setTimerInterval(null)
         return
       }
 
@@ -411,6 +420,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         setError(`Error 422: ${errorData.detail || "Los datos enviados no son válidos. Verifica el formato."}`)
         console.error("Error 422 - Datos enviados:", scrapingData)
         console.error("Error 422 - Respuesta:", errorData)
+        // Detener timer solo en caso de error
+        clearInterval(independentTimer)
+        setTimerInterval(null)
         return
       }
 
@@ -421,6 +433,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
           errorData.detail || errorData.message || `Error HTTP: ${response.status} - ${response.statusText}`
         setError(errorMessage)
         console.error("Error HTTP:", response.status, errorData)
+        // Detener timer solo en caso de error
+        clearInterval(independentTimer)
+        setTimerInterval(null)
         return
       }
 
@@ -431,6 +446,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       // Verificar que tenemos el jobId
       if (!initialResponse || initialResponse.status !== "success" || !initialResponse.jobId) {
         setError("Error: No se pudo obtener el ID del trabajo. Respuesta inválida del servidor.")
+        // Detener timer solo en caso de error
+        clearInterval(independentTimer)
+        setTimerInterval(null)
         return
       }
 
@@ -457,24 +475,41 @@ export default function Component({ onLogout }: BusinessSearchProps) {
           const jobData = await jobResponse.json()
           console.log("Estado del trabajo:", jobData)
 
-          // /** rest of code here **/
+          // ✅ SOLO DETENER CUANDO TENGAMOS DATOS REALES
           if (jobData.status === "COMPLETED") {
-            // Trabajo completado, procesar resultados
-            let hasActualResults = false
+            let actualResults = []
 
+            // Extraer datos reales de diferentes estructuras posibles
             if (jobData.results && jobData.results.data && Array.isArray(jobData.results.data)) {
-              setScrapingResults(jobData.results.data)
-              const count = jobData.results.results_count || jobData.results.data.length
-              setSuccess(`Scraping completado exitosamente. ${count} resultados encontrados.`)
-              hasActualResults = true
+              actualResults = jobData.results.data
+            } else if (jobData.results && Array.isArray(jobData.results.results)) {
+              actualResults = jobData.results.results
+            } else if (jobData.results && Array.isArray(jobData.results)) {
+              actualResults = jobData.results
+            }
 
-              // Actualizar el contador desde la base de datos después del scraping exitoso
+            // 🎯 SOLO SI TENEMOS DATOS REALES, DETENER TODO
+            if (actualResults.length > 0) {
+              console.log("✅ DATOS REALES RECIBIDOS - DETENIENDO TIMER Y POLLING")
+
+              // 1. DETENER TIMER INMEDIATAMENTE
+              clearInterval(independentTimer)
+              setTimerInterval(null)
+
+              // 2. PROCESAR RESULTADOS
+              setScrapingResults(actualResults)
+              setSuccess(`Scraping completado exitosamente. ${actualResults.length} resultados encontrados.`)
+
+              // 3. ACTUALIZAR CONTADORES
+              setLeadsScrapedCount((prev) => prev + actualResults.length)
+              setRemainingLeads((prev) => Math.max(0, prev - actualResults.length))
+
+              // 4. ACTUALIZAR DESDE DB
               const userDataString = localStorage.getItem("aria_user_data")
               if (userDataString) {
                 try {
                   const userData = JSON.parse(userDataString)
                   const userEmail = userData.email || userData.correo_electronico || userData.correoElectronico || ""
-
                   if (userEmail) {
                     // Obtener datos actualizados desde la base de datos
                     const freshUserData = await fetchUserDataFromDB(userEmail)
@@ -488,51 +523,28 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                 }
               }
 
-              // Actualizar contadores locales
-              setLeadsScrapedCount((prev) => prev + count)
-              setRemainingLeads((prev) => Math.max(0, prev - count))
-            } else if (jobData.results && Array.isArray(jobData.results.results)) {
-              setScrapingResults(jobData.results.results)
-              setSuccess(`Scraping completado exitosamente. ${jobData.results.results.length} resultados encontrados.`)
-              hasActualResults = true
-
-              // Actualizar contadores
-              setLeadsScrapedCount((prev) => prev + jobData.results.results.length)
-              setRemainingLeads((prev) => Math.max(0, prev - jobData.results.results.length))
-            } else if (jobData.results && Array.isArray(jobData.results)) {
-              setScrapingResults(jobData.results)
-              setSuccess(`Scraping completado exitosamente. ${jobData.results.length} resultados encontrados.`)
-              hasActualResults = true
-
-              // Actualizar contadores
-              setLeadsScrapedCount((prev) => prev + jobData.results.length)
-              setRemainingLeads((prev) => Math.max(0, prev - jobData.results.length))
-            } else {
-              // Backend dice "COMPLETED" pero no hay datos reales - seguir esperando
-              console.log("Backend dice COMPLETED pero no hay datos JSON reales, continuando polling...")
-              return false // Continuar polling
-            }
-
-            // SOLO detener timer y polling si tenemos datos reales
-            if (hasActualResults) {
-              console.log("✅ Datos JSON reales recibidos, deteniendo timer y polling")
-              // Clear the jobId when job completes
+              // 5. LIMPIAR ESTADOS
+              setIsLoading(false)
               setCurrentJobId(null)
               return true // Detener polling
             } else {
-              // No hay datos reales, continuar
-              return false
+              // Backend dice COMPLETED pero no hay datos - CONTINUAR
+              console.log("⚠️ Backend dice COMPLETED pero no hay datos reales - CONTINUANDO")
+              return false // Continuar polling
             }
           } else if (jobData.status === "FAILED" || jobData.status === "ERROR") {
-            // Trabajo falló
+            // Error - detener todo
+            console.log("❌ ERROR EN SCRAPING - DETENIENDO TODO")
+            clearInterval(independentTimer)
+            setTimerInterval(null)
             setError(`Error en el scraping: ${jobData.message || "Error desconocido"}`)
+            setIsLoading(false)
             return true // Detener polling
           } else {
-            // Trabajo aún en progreso (PENDING, PROCESSING, etc.)
-            console.log("Trabajo aún en progreso, continuando polling...")
+            // Trabajo en progreso - CONTINUAR (timer sigue corriendo)
+            console.log(`🔄 Trabajo en progreso (${jobData.status}) - TIMER SIGUE CORRIENDO`)
             return false // Continuar polling
           }
-          // /** rest of code here **/
         } catch (error) {
           console.error("Error consultando estado del trabajo:", error)
           return false // Continuar polling en caso de error de red
@@ -543,39 +555,25 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       const pollIntervalId = setInterval(async () => {
         const shouldStop = await pollJobStatus()
         if (shouldStop) {
-          if (pollIntervalId) {
-            clearInterval(pollIntervalId)
-            setPollInterval(null)
-          }
-          setIsLoading(false)
-          // Detener contador de tiempo inmediatamente usando la referencia actual
-          setTimerInterval((currentTimerInterval) => {
-            if (currentTimerInterval) {
-              clearInterval(currentTimerInterval)
-            }
-            return null
-          })
+          clearInterval(pollIntervalId)
+          setPollInterval(null)
         }
       }, 4000)
 
       // Guardar la referencia del interval en el estado
       setPollInterval(pollIntervalId)
 
-      // Timeout de seguridad (10 minutos máximo)
+      // Timeout de seguridad (10 minutos)
       setTimeout(() => {
         if (pollIntervalId) {
           clearInterval(pollIntervalId)
           setPollInterval(null)
         }
+        // DETENER TIMER SOLO EN TIMEOUT
+        clearInterval(independentTimer)
+        setTimerInterval(null)
         if (isLoading) {
           setIsLoading(false)
-          // Detener timer solo en caso de timeout
-          setTimerInterval((currentTimerInterval) => {
-            if (currentTimerInterval) {
-              clearInterval(currentTimerInterval)
-            }
-            return null
-          })
           setError("Timeout: El scraping está tomando más tiempo del esperado. Por favor, intenta nuevamente.")
         }
       }, 600000) // 10 minutos
@@ -585,11 +583,9 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         `Error de conexión: ${err instanceof Error ? err.message : "Error desconocido"}. Verifica la URL del webhook y tu conexión.`,
       )
       setIsLoading(false)
-      // Detener contador de tiempo
-      if (timerInterval) {
-        clearInterval(timerInterval)
-        setTimerInterval(null)
-      }
+      // Detener timer en caso de error
+      clearInterval(independentTimer)
+      setTimerInterval(null)
     }
   }
 
