@@ -319,17 +319,25 @@ export default function Component({ onLogout }: BusinessSearchProps) {
 
     setIsLoading(true)
 
-    // 🔥 TIMER COMPLETAMENTE INDEPENDIENTE - CORRE EN PARALELO
+    // 🔥 TIMER 100% INDEPENDIENTE - NO DEPENDE DE NADA MÁS
     const startTime = Date.now()
     setScrapingStartTime(startTime)
     setElapsedTime(0)
 
-    // Timer independiente que SOLO se detiene cuando tenemos resultados reales
+    // Variable para controlar el timer independientemente
+    let timerShouldStop = false
+
+    // Timer que SOLO se detiene cuando timerShouldStop = true
     const independentTimer = setInterval(() => {
+      if (timerShouldStop) {
+        clearInterval(independentTimer)
+        return
+      }
       const currentTime = Date.now()
       const elapsed = Math.floor((currentTime - startTime) / 1000)
       setElapsedTime(elapsed)
     }, 1000)
+
     setTimerInterval(independentTimer)
 
     setError("")
@@ -361,8 +369,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       if (!userEmail) {
         setError("Error: No se pudo obtener el email del usuario. Por favor, inicia sesión nuevamente.")
         // Detener timer solo en caso de error
-        clearInterval(independentTimer)
-        setTimerInterval(null)
+        timerShouldStop = true
         return
       }
 
@@ -396,8 +403,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         const errorData = await response.json().catch(() => ({ detail: "Error de plan de pago" }))
         setPaymentError(errorData.detail || "Error de plan de pago")
         // Detener timer solo en caso de error
-        clearInterval(independentTimer)
-        setTimerInterval(null)
+        timerShouldStop = true
         return
       }
 
@@ -409,8 +415,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         // Mostrar mensaje de límite alcanzado con el modal bonito
         setError("LIMIT_REACHED")
         // Detener timer solo en caso de error
-        clearInterval(independentTimer)
-        setTimerInterval(null)
+        timerShouldStop = true
         return
       }
 
@@ -421,8 +426,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         console.error("Error 422 - Datos enviados:", scrapingData)
         console.error("Error 422 - Respuesta:", errorData)
         // Detener timer solo en caso de error
-        clearInterval(independentTimer)
-        setTimerInterval(null)
+        timerShouldStop = true
         return
       }
 
@@ -434,8 +438,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
         setError(errorMessage)
         console.error("Error HTTP:", response.status, errorData)
         // Detener timer solo en caso de error
-        clearInterval(independentTimer)
-        setTimerInterval(null)
+        timerShouldStop = true
         return
       }
 
@@ -447,8 +450,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       if (!initialResponse || initialResponse.status !== "success" || !initialResponse.jobId) {
         setError("Error: No se pudo obtener el ID del trabajo. Respuesta inválida del servidor.")
         // Detener timer solo en caso de error
-        clearInterval(independentTimer)
-        setTimerInterval(null)
+        timerShouldStop = true
         return
       }
 
@@ -488,13 +490,12 @@ export default function Component({ onLogout }: BusinessSearchProps) {
               actualResults = jobData.results
             }
 
-            // 🎯 SOLO SI TENEMOS DATOS REALES, DETENER TODO
+            // 🎯 SOLO SI TENEMOS DATOS REALES, DETENER TIMER
             if (actualResults.length > 0) {
-              console.log("✅ DATOS REALES RECIBIDOS - DETENIENDO TIMER Y POLLING")
+              console.log("✅ DATOS REALES RECIBIDOS - DETENIENDO TIMER")
 
               // 1. DETENER TIMER INMEDIATAMENTE
-              clearInterval(independentTimer)
-              setTimerInterval(null)
+              timerShouldStop = true
 
               // 2. PROCESAR RESULTADOS
               setScrapingResults(actualResults)
@@ -529,14 +530,13 @@ export default function Component({ onLogout }: BusinessSearchProps) {
               return true // Detener polling
             } else {
               // Backend dice COMPLETED pero no hay datos - CONTINUAR
-              console.log("⚠️ Backend dice COMPLETED pero no hay datos reales - CONTINUANDO")
+              console.log("⚠️ Backend dice COMPLETED pero no hay datos reales - TIMER SIGUE")
               return false // Continuar polling
             }
           } else if (jobData.status === "FAILED" || jobData.status === "ERROR") {
             // Error - detener todo
-            console.log("❌ ERROR EN SCRAPING - DETENIENDO TODO")
-            clearInterval(independentTimer)
-            setTimerInterval(null)
+            console.log("❌ ERROR EN SCRAPING - DETENIENDO TIMER")
+            timerShouldStop = true
             setError(`Error en el scraping: ${jobData.message || "Error desconocido"}`)
             setIsLoading(false)
             return true // Detener polling
@@ -570,8 +570,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
           setPollInterval(null)
         }
         // DETENER TIMER SOLO EN TIMEOUT
-        clearInterval(independentTimer)
-        setTimerInterval(null)
+        timerShouldStop = true
         if (isLoading) {
           setIsLoading(false)
           setError("Timeout: El scraping está tomando más tiempo del esperado. Por favor, intenta nuevamente.")
@@ -584,8 +583,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
       )
       setIsLoading(false)
       // Detener timer en caso de error
-      clearInterval(independentTimer)
-      setTimerInterval(null)
+      timerShouldStop = true
     }
   }
 
@@ -1582,10 +1580,7 @@ export default function Component({ onLogout }: BusinessSearchProps) {
                               setSuccess(`🚫 CANCELADO: ${cancelData.message || "Scraping cancelado exitosamente"}`)
 
                               // 4. DETENER CONTADOR DE TIEMPO
-                              if (timerInterval) {
-                                clearInterval(timerInterval)
-                                setTimerInterval(null)
-                              }
+                              timerShouldStop = true // En lugar de clearInterval(timerInterval)
 
                               // 5. LIMPIAR JOBID PARA PREVENIR MÁS LLAMADAS
                               setCurrentJobId(null)
